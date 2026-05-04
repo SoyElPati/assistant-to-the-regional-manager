@@ -1093,6 +1093,7 @@ async function saveEdits(id){
 }
  
  
+async function changeStatus(id,status){
   const c=S.cards.find(x=>x.id===id);if(!c)return;
   const prev=c.status;
   c.status=status;
