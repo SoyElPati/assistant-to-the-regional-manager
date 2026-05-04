@@ -6,123 +6,173 @@
 <title>Winclap COO</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #07090D;
-  --surface: #0E1018;
-  --surface2: #151820;
-  --border: #1C2032;
-  --border2: #252C40;
-  --accent: #C9FF47;
-  --accent-dark: #0A0C00;
-  --text: #ECF0FA;
-  --text2: #8892AD;
-  --text3: #434D68;
-  --danger: #FF5260;
-  --danger-bg: rgba(255,82,96,0.08);
-  --warning: #FFB840;
-  --warning-bg: rgba(255,184,64,0.08);
-  --success: #2ED19E;
-  --success-bg: rgba(46,209,158,0.08);
-  --info: #5BA8FF;
-  --info-bg: rgba(91,168,255,0.08);
+:root{
+  --bg:#07090D;--surface:#0E1018;--surface2:#151820;--surface3:#1A1F2E;
+  --border:#1C2032;--border2:#252C40;--border3:#2E3650;
+  --accent:#C9FF47;--accent-dim:rgba(201,255,71,.12);--accent-dark:#0A0C00;
+  --text:#ECF0FA;--text2:#8892AD;--text3:#434D68;
+  --danger:#FF5260;--danger-bg:rgba(255,82,96,.08);--danger-border:rgba(255,82,96,.2);
+  --warning:#FFB840;--warning-bg:rgba(255,184,64,.08);--warning-border:rgba(255,184,64,.2);
+  --success:#2ED19E;--success-bg:rgba(46,209,158,.08);--success-border:rgba(46,209,158,.2);
+  --info:#5BA8FF;--info-bg:rgba(91,168,.08);--info-bg:rgba(91,168,255,.08);--info-border:rgba(91,168,255,.2);
+  --blocked:#B06FFF;--blocked-bg:rgba(176,111,255,.08);--blocked-border:rgba(176,111,255,.2);
+  --risk:#FF5260;--watch:#FFB840;--healthy:#2ED19E;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;}
-h1,h2,h3,.syne{font-family:'Syne',sans-serif;}
-
-/* ── LOADING ── */
+ 
+/* LOADING */
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:1.5rem;}
-.ld-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.ld-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;}
 .ld-logo span{color:var(--accent);}
 .ld-dots{display:flex;gap:5px;}
-.ld-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:ldpulse 1.1s ease-in-out infinite;}
-.ld-dot:nth-child(2){animation-delay:.18s;}
-.ld-dot:nth-child(3){animation-delay:.36s;}
-@keyframes ldpulse{0%,100%{opacity:.2;transform:scale(.7);}50%{opacity:1;transform:scale(1.1);}}
-
-/* ── LOGIN ── */
+.ld-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:ldp 1.1s ease-in-out infinite;}
+.ld-dot:nth-child(2){animation-delay:.18s;}.ld-dot:nth-child(3){animation-delay:.36s;}
+@keyframes ldp{0%,100%{opacity:.2;transform:scale(.7);}50%{opacity:1;transform:scale(1.1);}}
+ 
+/* LOGIN */
 #login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;}
-.lcard{background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3rem 2.5rem;width:400px;text-align:center;}
-.lcard-logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;}
+.lcard{background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:3rem 2.5rem;width:400px;text-align:center;}
+.lcard-logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
 .lcard-logo span{color:var(--accent);}
 .lcard-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem;}
-.lcard-desc{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:2rem;border-top:0.5px solid var(--border);padding-top:1.5rem;}
-.lcard-desc strong{color:var(--text);}
+.lcard-desc{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:2rem;border-top:.5px solid var(--border);padding-top:1.5rem;}
 .btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;background:#fff;color:#1f1f1f;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
 .btn-google:hover{background:#f0f0f0;}
 .btn-google svg{width:20px;height:20px;flex-shrink:0;}
-
-/* ── APP LAYOUT ── */
+ 
+/* LAYOUT */
 #app{display:none;height:100vh;}
 .shell{display:flex;height:100%;}
-
-/* ── SIDEBAR ── */
-.sidebar{width:226px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
-.sb-head{padding:1.5rem 1.25rem 1rem;border-bottom:0.5px solid var(--border);}
-.sb-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.3px;margin-bottom:.75rem;}
+ 
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-head{padding:1.25rem 1.1rem .875rem;border-bottom:.5px solid var(--border);}
+.sb-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:.625rem;}
 .sb-logo span{color:var(--accent);}
-.user-chip{display:flex;align-items:center;gap:9px;}
-.avatar{width:28px;height:28px;border-radius:50%;background:rgba(201,255,71,.1);border:1px solid rgba(201,255,71,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;overflow:hidden;}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.avatar{width:26px;height:26px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(201,255,71,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;overflow:hidden;}
 .avatar img{width:100%;height:100%;object-fit:cover;}
 .user-name{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
-.sb-nav{flex:1;padding:1rem 0;overflow-y:auto;}
-.nav-sec{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);padding:.65rem 1.25rem .35rem;}
-.ni{display:flex;align-items:center;gap:10px;padding:8px 1.25rem;font-size:13px;cursor:pointer;color:var(--text2);position:relative;transition:all .1s;border-left:2px solid transparent;user-select:none;}
+.sb-nav{flex:1;padding:.75rem 0;overflow-y:auto;}
+.nav-sec{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);padding:.625rem 1.1rem .3rem;}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 1.1rem;font-size:13px;cursor:pointer;color:var(--text2);position:relative;transition:all .1s;border-left:2px solid transparent;user-select:none;}
 .ni:hover{background:var(--surface2);color:var(--text);}
 .ni.active{background:rgba(201,255,71,.06);color:var(--text);border-left-color:var(--accent);font-weight:500;}
-.ni-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;}
-.nbadge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;margin-left:auto;line-height:1.4;}
+.ni-icon{width:15px;text-align:center;font-size:12px;flex-shrink:0;}
+.nbadge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:20px;margin-left:auto;}
 .nbw{background:var(--warning-bg);color:var(--warning);}
 .nbd{background:var(--danger-bg);color:var(--danger);}
-.sb-footer{padding:1rem 1.25rem;border-top:0.5px solid var(--border);}
-.btn-logout{width:100%;padding:7px;background:transparent;border:0.5px solid var(--border2);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .1s;}
-.btn-logout:hover{border-color:var(--border);color:var(--text);}
-
-/* ── MAIN ── */
+.sb-footer{padding:.875rem 1.1rem;border-top:.5px solid var(--border);}
+.btn-logout{width:100%;padding:6px;background:transparent;border:.5px solid var(--border2);border-radius:7px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-logout:hover{color:var(--text);border-color:var(--border3);}
+ 
+/* MAIN */
 .main{flex:1;overflow-y:auto;}
-.mc{padding:2rem;max-width:980px;}
-
-/* ── PAGE HEADER ── */
-.phdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;}
-.ptitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.5px;}
+.mc{padding:1.75rem 2rem;max-width:1100px;}
+ 
+/* PAGE HEADER */
+.phdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;}
+.ptitle{font-family:'Syne',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.5px;}
 .psub{font-size:12px;color:var(--text2);margin-top:3px;}
-
-/* ── BUTTONS ── */
-.btn{border:0.5px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .1s;display:inline-flex;align-items:center;gap:6px;}
-.btn:hover{background:var(--surface2);border-color:var(--border);}
+.phdr-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+ 
+/* BUTTONS */
+.btn{border:.5px solid var(--border2);border-radius:7px;padding:7px 13px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .1s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn:hover{background:var(--surface2);border-color:var(--border3);}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn-a{background:var(--accent);color:var(--accent-dark);border-color:var(--accent);font-weight:700;}
-.btn-a:hover{background:#d8ff62;border-color:#d8ff62;color:var(--accent-dark);}
-.btn-ok{border-color:var(--success);color:var(--success);}
+.btn-a:hover{background:#d8ff62;color:var(--accent-dark);}
+.btn-ok{border-color:var(--success-border);color:var(--success);}
 .btn-ok:hover{background:var(--success-bg);}
-.btn-x{border-color:var(--danger);color:var(--danger);}
+.btn-x{border-color:var(--danger-border);color:var(--danger);}
 .btn-x:hover{background:var(--danger-bg);}
-.btn-sm{padding:5px 10px;font-size:11px;}
-
-/* ── STATS ── */
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.75rem;}
-.sbox{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;}
-.slbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
-.sval{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;}
+.btn-sm{padding:4px 9px;font-size:11px;}
+.btn-xs{padding:3px 7px;font-size:10px;}
+.toggle-group{display:flex;background:var(--surface2);border:.5px solid var(--border);border-radius:7px;padding:2px;gap:2px;}
+.toggle-btn{padding:4px 10px;font-size:11px;font-weight:500;border-radius:5px;cursor:pointer;color:var(--text2);border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all .1s;}
+.toggle-btn.active{background:var(--surface3);color:var(--text);border:.5px solid var(--border2);}
+ 
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem;}
+.sgrid-3{grid-template-columns:repeat(3,1fr);}
+.sbox{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+.slbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.sval{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;}
 .sv-w{color:var(--warning);}
 .sv-d{color:var(--danger);}
 .sv-s{color:var(--success);}
-
-/* ── TASK CARDS ── */
-.tc{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:9px;transition:border-color .1s;}
-.tc:hover{border-color:var(--border2);}
+.sv-b{color:var(--blocked);}
+ 
+/* HEALTH BADGES */
+.health{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;display:inline-flex;align-items:center;gap:4px;}
+.health::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.h-healthy{background:var(--success-bg);color:var(--success);border:.5px solid var(--success-border);}
+.h-watch{background:var(--warning-bg);color:var(--warning);border:.5px solid var(--warning-border);}
+.h-risk{background:var(--danger-bg);color:var(--danger);border:.5px solid var(--danger-border);}
+ 
+/* CLIENT CARDS */
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.client-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;cursor:pointer;transition:border-color .15s,transform .1s;}
+.client-card:hover{border-color:var(--border3);transform:translateY(-1px);}
+.client-card.risk{border-left:2px solid var(--danger);}
+.client-card.watch{border-left:2px solid var(--warning);}
+.client-card.healthy{border-left:2px solid var(--success);}
+.cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;}
+.cc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.cc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:.875rem;}
+.cc-metric{background:var(--surface2);border-radius:7px;padding:6px 8px;text-align:center;}
+.cc-metric-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.cc-metric-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;}
+.cc-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:.875rem;}
+.cc-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.75rem;border-top:.5px solid var(--border);}
+.cc-deadline{font-size:11px;color:var(--text2);}
+.cc-deadline span{color:var(--warning);}
+ 
+/* CLIENT DETAIL */
+.client-detail-header{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;}
+.cdh-top{display:flex;align-items:center;gap:12px;margin-bottom:1rem;}
+.cdh-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.cdh-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.cdh-metric{background:var(--surface2);border-radius:8px;padding:8px 10px;text-align:center;}
+.cdh-metric-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;}
+.cdh-metric-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;}
+.risk-bar{background:var(--danger-bg);border:.5px solid var(--danger-border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;}
+.risk-bar-title{font-size:11px;font-weight:600;color:var(--danger);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;}
+.risk-item{font-size:12px;color:var(--text2);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.risk-item::before{content:'▸';color:var(--danger);font-size:10px;}
+ 
+/* TASK CARDS */
+.tc{background:var(--surface);border:.5px solid var(--border);border-radius:9px;padding:.875rem 1rem;margin-bottom:8px;transition:border-color .1s;cursor:pointer;}
+.tc:hover{border-color:var(--border3);}
+.tc.blocked-card{border-left:2px solid var(--blocked);}
+.tc.overdue-card{border-left:2px solid var(--danger);}
 .tc.prop{border-left:2px solid var(--warning);}
-.tc-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.tc-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
 .tc-title{font-size:13px;font-weight:500;flex:1;line-height:1.4;}
-.tc-desc{font-size:12px;color:var(--text2);margin-bottom:9px;line-height:1.55;}
-.tc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.tc-acts{display:flex;gap:7px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);align-items:center;}
-
-/* ── BADGES ── */
-.badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;display:inline-block;}
-.b-todo{background:var(--surface2);color:var(--text2);border:0.5px solid var(--border);}
+.tc-desc{font-size:12px;color:var(--text2);margin-bottom:7px;line-height:1.5;}
+.tc-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.tc-acts{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:.5px solid var(--border);align-items:center;}
+ 
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;}
+.kb-col{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:.875rem;}
+.kb-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.625rem;border-bottom:.5px solid var(--border);}
+.kb-col-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);}
+.kb-count{font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;background:var(--surface2);color:var(--text3);}
+.kb-card{background:var(--surface2);border:.5px solid var(--border);border-radius:7px;padding:.75rem .875rem;margin-bottom:7px;cursor:pointer;transition:border-color .1s;}
+.kb-card:hover{border-color:var(--border3);}
+.kb-card-title{font-size:12px;font-weight:500;margin-bottom:5px;line-height:1.4;}
+.kb-card-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.kb-blocked{border-left:2px solid var(--blocked);}
+.kb-overdue{border-left:2px solid var(--danger);}
+ 
+/* BADGES */
+.badge{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block;}
+.b-todo{background:var(--surface2);color:var(--text2);border:.5px solid var(--border);}
 .b-in_progress{background:var(--info-bg);color:var(--info);}
 .b-done{background:var(--success-bg);color:var(--success);}
+.b-blocked{background:var(--blocked-bg);color:var(--blocked);}
 .b-pa{background:var(--warning-bg);color:var(--warning);}
 .b-high{background:var(--danger-bg);color:var(--danger);}
 .b-med{background:var(--warning-bg);color:var(--warning);}
@@ -131,624 +181,953 @@ h1,h2,h3,.syne{font-family:'Syne',sans-serif;}
 .due{font-size:11px;color:var(--text3);}
 .due-ov{color:var(--danger);font-weight:500;}
 .due-sn{color:var(--warning);}
-.chip{font-size:11px;background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:2px 8px;color:var(--text2);}
-.mref{font-size:11px;color:var(--text3);font-style:italic;}
-
-/* ── FORM ── */
-.fi{border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);width:100%;transition:border-color .1s;}
-.fi:focus{outline:none;border-color:var(--border2);}
-textarea.fi{resize:vertical;min-height:170px;line-height:1.65;}
+.chip{font-size:11px;background:var(--surface2);border:.5px solid var(--border);border-radius:20px;padding:2px 7px;color:var(--text2);}
+ 
+/* SECTION HEADER */
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem;padding-bottom:.5rem;border-bottom:.5px solid var(--border);}
+.shdr h3{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);}
+ 
+/* INFO BARS */
+.ibar{border-radius:9px;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;gap:1rem;}
+.ibar-w{background:var(--warning-bg);border:.5px solid var(--warning-border);}
+.ibar-s{background:var(--success-bg);border:.5px solid var(--success-border);}
+.ibar-d{background:var(--danger-bg);border:.5px solid var(--danger-border);}
+.ibar-w *{color:var(--warning);}.ibar-s *{color:var(--success);}.ibar-d *{color:var(--danger);}
+ 
+/* FORM */
+.fi{border:.5px solid var(--border);border-radius:7px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);width:100%;transition:border-color .1s;}
+.fi:focus{outline:none;border-color:var(--border3);}
+textarea.fi{resize:vertical;min-height:150px;line-height:1.6;}
 select.fi{cursor:pointer;width:auto;padding:5px 9px;font-size:12px;}
 input[type=date].fi{width:auto;padding:5px 9px;font-size:12px;}
-.fg{margin-bottom:1rem;}
-.fl{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-
-/* ── SECTION HEADER ── */
-.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:0.5px solid var(--border);}
-.shdr h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);}
-
-/* ── CLIENT ROWS ── */
-.cr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);}
-.cr:last-child{border-bottom:none;}
-.cn{font-size:13px;font-weight:500;}
-.ot{color:var(--danger);font-size:11px;font-weight:500;}
-
-/* ── INFO BARS ── */
-.ibar{border-radius:10px;padding:.875rem 1.1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;}
-.ibar-w{background:var(--warning-bg);border:0.5px solid rgba(255,184,64,.15);}
-.ibar-s{background:var(--success-bg);border:0.5px solid rgba(46,209,158,.15);}
-.ibar-w *{color:var(--warning);}
-.ibar-s *{color:var(--success);}
-
-/* ── TWO COL ── */
-.twocol{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:3.5rem 1rem;color:var(--text3);}
+.fg{margin-bottom:.875rem;}
+.fl{display:block;font-size:10px;font-weight:500;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+ 
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);}
 .empty p{font-size:13px;color:var(--text2);}
-.empty .eico{font-size:30px;margin-bottom:.75rem;}
-
-/* ── FILTERS ── */
-.filters{display:flex;gap:8px;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;}
-
-/* ── MODAL ── */
-.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center;}
+ 
+/* FILTERS */
+.filters{display:flex;gap:8px;align-items:center;margin-bottom:1.1rem;flex-wrap:wrap;}
+ 
+/* TASK DETAIL MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
 .moverlay.open{display:flex;}
-.modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:2rem;width:460px;}
-.modal h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:.5rem;}
-.modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1rem;}
-.modal code{font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent);}
-
-/* ── SPIN ── */
+.modal{background:var(--surface);border:.5px solid var(--border2);border-radius:14px;width:100%;max-width:640px;margin:auto;}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:.5px solid var(--border);display:flex;align-items:flex-start;gap:10px;}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;flex:1;line-height:1.4;}
+.modal-body{padding:1.25rem 1.5rem;}
+.modal-footer{padding:.875rem 1.5rem;border-top:.5px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
+.modal-section{margin-bottom:1.25rem;}
+.modal-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:.625rem;}
+.activity-item{display:flex;gap:10px;padding:.5rem 0;border-bottom:.5px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:6px;height:6px;border-radius:50%;background:var(--border3);flex-shrink:0;margin-top:5px;}
+.activity-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.activity-time{font-size:11px;color:var(--text3);}
+.comment-item{background:var(--surface2);border-radius:7px;padding:.625rem .875rem;margin-bottom:6px;}
+.comment-author{font-size:11px;font-weight:500;color:var(--accent);margin-bottom:3px;}
+.comment-text{font-size:12px;color:var(--text2);line-height:1.5;}
+ 
+/* API KEY MODAL */
+.ak-modal{background:var(--surface);border:.5px solid var(--border2);border-radius:14px;padding:2rem;width:460px;margin:auto;}
+.ak-modal h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:.5rem;}
+.ak-modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1rem;}
+ 
+/* MISC */
 @keyframes spin{to{transform:rotate(360deg);}}
 .spin{display:inline-block;animation:spin .7s linear infinite;}
-
-hr.dv{border:none;border-top:0.5px solid var(--border);margin:1.5rem 0;}
+hr.dv{border:none;border-top:.5px solid var(--border);margin:1.25rem 0;}
 code{font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent);}
+.tag{font-size:10px;background:var(--surface2);border:.5px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--text3);}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:1rem;}
+.back-btn:hover{color:var(--text);}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.blocked-reason{background:var(--blocked-bg);border:.5px solid var(--blocked-border);border-radius:7px;padding:.625rem .875rem;font-size:12px;color:var(--blocked);margin-top:6px;}
 </style>
 </head>
 <body>
-
-<!-- LOADING -->
+ 
 <div id="loading">
   <div class="ld-logo">Winclap <span>COO</span></div>
-  <div class="ld-dots">
-    <div class="ld-dot"></div>
-    <div class="ld-dot"></div>
-    <div class="ld-dot"></div>
-  </div>
+  <div class="ld-dots"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div></div>
 </div>
-
-<!-- LOGIN -->
+ 
 <div id="login-screen">
   <div class="lcard">
     <div class="lcard-logo">Winclap <span>COO</span></div>
     <div class="lcard-sub">Tu asistente operativo de reuniones</div>
-    <div class="lcard-desc">
-      Convertí las notas de Gemini o Granola en tareas accionables.<br>
-      <strong>Cada usuario gestiona sus propias cards</strong>, guardadas en su Google Drive personal.
-    </div>
+    <div class="lcard-desc">Convertí las notas de Gemini en tareas accionables.<br><strong>Cada usuario gestiona sus propias cards</strong>, guardadas en su Google Drive.</div>
     <button class="btn-google" onclick="login()">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continuar con Google
     </button>
   </div>
 </div>
-
-<!-- APP -->
+ 
 <div id="app">
   <div class="shell">
     <nav class="sidebar" id="sidebar"></nav>
-    <main class="main">
-      <div class="mc" id="mc"></div>
-    </main>
+    <main class="main"><div class="mc" id="mc"></div></main>
   </div>
 </div>
-
+ 
+<!-- TASK DETAIL MODAL -->
+<div class="moverlay" id="task-modal">
+  <div class="modal" id="task-modal-content"></div>
+</div>
+ 
 <!-- API KEY MODAL -->
 <div class="moverlay" id="ak-modal">
-  <div class="modal">
+  <div class="ak-modal">
     <h2>Configurar Gemini API Key</h2>
-    <p>Necesitás una API key de Gemini para procesar notas con IA. Es <strong style="color:var(--success)">gratuita</strong> (1.500 requests/día) y se guarda solo en tu navegador — nadie más la ve.</p>
-    <p>Conseguila en <code>aistudio.google.com</code> → Get API key → Create API key → seleccionás tu proyecto.</p>
-    <div class="fg">
-      <label class="fl">Tu Gemini API Key</label>
-      <input type="password" class="fi" id="ak-input" placeholder="AIzaSy...">
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-a" onclick="saveAK()">Guardar</button>
-      <button class="btn" onclick="closeAK()">Cancelar</button>
-    </div>
+    <p>Gratis (1.500 requests/día). Se guarda solo en tu navegador.</p>
+    <p>Conseguila en <code>aistudio.google.com</code> → Get API key → Create API key.</p>
+    <div class="fg"><label class="fl">Tu Gemini API Key</label><input type="password" class="fi" id="ak-input" placeholder="AIzaSy..."></div>
+    <div style="display:flex;gap:8px;"><button class="btn btn-a" onclick="saveAK()">Guardar</button><button class="btn" onclick="closeModal('ak-modal')">Cancelar</button></div>
   </div>
 </div>
-
-<!-- Google Identity Services -->
+ 
 <script src="https://accounts.google.com/gsi/client" async onload="gsiReady()"></script>
-
 <script>
-// ═══════════════════════════════
+// ════════════════════════════════════════
 //  CONFIG
-// ═══════════════════════════════
+// ════════════════════════════════════════
 const CLIENT_ID = '19864166136-i2dre5f4vs668les58ne3sfk5gaoiplq.apps.googleusercontent.com';
-const FILE_NAME  = 'winclap-coo-data.json';
-
-// ═══════════════════════════════
+const FILE_NAME = 'winclap-coo-data.json';
+ 
+// ════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════
-let tokenClient  = null;
-let accessToken  = null;
-let currentUser  = null;
-let driveFileId  = null;
-
-const S = {
-  view: 'dashboard',
-  cards: [], clients: [], proposed: [],
-  processing: false,
-  noteText: '', meetingTitle: '',
-  filterClient: 'all', filterStatus: 'all',
+// ════════════════════════════════════════
+let tokenClient=null, accessToken=null, currentUser=null, driveFileId=null;
+const S={
+  view:'dashboard', subView:null, selectedClient:null, selectedTaskId:null,
+  cards:[], clients:[], proposed:[],
+  processing:false, noteText:'', meetingTitle:'',
+  filterClient:'all', filterStatus:'all', filterAssignee:'all',
+  tasksView:'list', // 'list' | 'kanban'
 };
-
-// ═══════════════════════════════
+ 
+// ════════════════════════════════════════
 //  AUTH
-// ═══════════════════════════════
-function gsiReady() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: [
-      'https://www.googleapis.com/auth/drive',
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email'
-    ].join(' '),
-    callback: onToken,
+// ════════════════════════════════════════
+function gsiReady(){
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,
+    scope:'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback:onToken,
   });
-  // Try silent login if we have a hint
-  const hint = localStorage.getItem('wcoo-email-hint');
-  if (hint) {
-    tokenClient.requestAccessToken({ prompt: '', login_hint: hint });
-  } else {
-    setTimeout(showLogin, 800);
-  }
+  const hint=localStorage.getItem('wcoo-email-hint');
+  if(hint) tokenClient.requestAccessToken({prompt:'',login_hint:hint});
+  else setTimeout(showLogin,800);
 }
-
-async function onToken(resp) {
-  if (resp.error) { showLogin(); return; }
-  accessToken = resp.access_token;
-  try {
-    currentUser = await apiFetch('https://www.googleapis.com/oauth2/v3/userinfo');
-    if (currentUser.email) localStorage.setItem('wcoo-email-hint', currentUser.email);
+async function onToken(resp){
+  if(resp.error){showLogin();return;}
+  accessToken=resp.access_token;
+  try{
+    currentUser=await apiFetch('https://www.googleapis.com/oauth2/v3/userinfo');
+    if(currentUser.email) localStorage.setItem('wcoo-email-hint',currentUser.email);
     await loadDrive();
     showApp();
-  } catch(e) {
-    console.error(e);
-    showLogin();
-  }
+  }catch(e){console.error(e);showLogin();}
 }
-
-function login() {
-  tokenClient.requestAccessToken({ prompt: 'select_account' });
-}
-
-function logout() {
-  if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null; currentUser = null; driveFileId = null;
+function login(){tokenClient.requestAccessToken({prompt:'select_account'});}
+function logout(){
+  if(accessToken) google.accounts.oauth2.revoke(accessToken,()=>{});
+  accessToken=null;currentUser=null;driveFileId=null;
   localStorage.removeItem('wcoo-email-hint');
-  S.cards = []; S.clients = []; S.proposed = [];
+  S.cards=[];S.clients=[];S.proposed=[];
   showLogin();
 }
-
-// ═══════════════════════════════
-//  UI SCREENS
-// ═══════════════════════════════
-function showLogin() {
-  document.getElementById('loading').style.display        = 'none';
-  document.getElementById('login-screen').style.display  = 'flex';
-  document.getElementById('app').style.display           = 'none';
+function showLogin(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
 }
-function showApp() {
-  document.getElementById('loading').style.display       = 'none';
-  document.getElementById('login-screen').style.display  = 'none';
-  document.getElementById('app').style.display           = 'block';
+function showApp(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
   render();
 }
-
-// ═══════════════════════════════
+ 
+// ════════════════════════════════════════
 //  DRIVE
-// ═══════════════════════════════
-async function apiFetch(url, opts={}) {
-  const res = await fetch(url, {
-    ...opts,
-    headers: { Authorization: `Bearer ${accessToken}`, ...(opts.headers||{}) }
-  });
-  if (!res.ok) throw new Error(`API ${res.status}`);
-  const ct = res.headers.get('content-type') || '';
-  return ct.includes('application/json') ? res.json() : res.text();
+// ════════════════════════════════════════
+async function apiFetch(url,opts={}){
+  const res=await fetch(url,{...opts,headers:{Authorization:`Bearer ${accessToken}`,...(opts.headers||{})}});
+  if(!res.ok) throw new Error(`API ${res.status}`);
+  const ct=res.headers.get('content-type')||'';
+  return ct.includes('application/json')?res.json():res.text();
 }
-
-async function loadDrive() {
-  const list = await apiFetch('https://www.googleapis.com/drive/v3/files?q=name%3D%27winclap-coo-data.json%27&fields=files(id,name)');
-  const existing = list.files?.find(f => f.name === FILE_NAME);
-  if (existing) {
-    driveFileId = existing.id;
-    const raw = await apiFetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`);
-    const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    S.cards    = data.cards    || [];
-    S.clients  = data.clients  || [];
-    S.proposed = data.proposed || [];
-  } else {
-    S.cards   = sampleData();
-    S.clients = [...new Set(S.cards.map(c => c.client))];
+async function loadDrive(){
+  const list=await apiFetch(`https://www.googleapis.com/drive/v3/files?q=name%3D%27${FILE_NAME}%27&fields=files(id,name)`);
+  const existing=list.files?.find(f=>f.name===FILE_NAME);
+  if(existing){
+    driveFileId=existing.id;
+    const raw=await apiFetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`);
+    const data=typeof raw==='string'?JSON.parse(raw):raw;
+    S.cards=migrateCards(data.cards||[]);
+    S.clients=data.clients||[];
+    S.proposed=data.proposed||[];
+  }else{
+    S.cards=sampleData();
+    S.clients=[...new Set(S.cards.map(c=>c.client))];
     await saveDrive();
   }
 }
-
-async function saveDrive() {
-  const body = JSON.stringify({ cards: S.cards, clients: S.clients, proposed: S.proposed });
-  if (driveFileId) {
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body,
+async function saveDrive(){
+  const body=JSON.stringify({cards:S.cards,clients:S.clients,proposed:S.proposed});
+  if(driveFileId){
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,{
+      method:'PATCH',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body,
     });
-  } else {
-    const meta = await apiFetch('https://www.googleapis.com/drive/v3/files', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: FILE_NAME, mimeType: 'application/json' }),
+  }else{
+    const meta=await apiFetch('https://www.googleapis.com/drive/v3/files',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:FILE_NAME,mimeType:'application/json'}),
     });
-    driveFileId = meta.id;
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body,
+    driveFileId=meta.id;
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,{
+      method:'PATCH',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body,
     });
   }
 }
-
-// ═══════════════════════════════
-//  API KEY
-// ═══════════════════════════════
-const getAK = () => localStorage.getItem('wcoo-gemini-key');
-function saveAK() {
-  const k = document.getElementById('ak-input').value.trim();
-  if (!k) return;
-  localStorage.setItem('wcoo-gemini-key', k);
-  closeAK(); render();
+ 
+// Migrate old cards to new schema
+function migrateCards(cards){
+  return cards.map(c=>({
+    comments:[],activityLog:[],rescheduleHistory:[],
+    blockedReason:null,blockedAt:null,...c,
+  }));
 }
-function closeAK() { document.getElementById('ak-modal').classList.remove('open'); }
-function openAK()  { document.getElementById('ak-modal').classList.add('open'); }
-
-// ═══════════════════════════════
+ 
+// ════════════════════════════════════════
+//  API KEY
+// ════════════════════════════════════════
+const getAK=()=>localStorage.getItem('wcoo-gemini-key');
+function saveAK(){
+  const k=document.getElementById('ak-input').value.trim();
+  if(!k)return;
+  localStorage.setItem('wcoo-gemini-key',k);
+  closeModal('ak-modal');render();
+}
+ 
+// ════════════════════════════════════════
 //  SAMPLE DATA
-// ═══════════════════════════════
-function sampleData() {
-  const add = n => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; };
-  return [
-    {id:'s1',title:'Actualizar brief creativo para Meta',description:'Incluir nuevos benchmarks de performance Q2 y CTAs actualizados basados en la review del lunes.',client:'Airtm',assignee:'Vos',dueDate:add(2),priority:'high',status:'in_progress',createdAt:new Date().toISOString(),meetingTitle:'Airtm Paid Media Review',tags:['creative']},
-    {id:'s2',title:'Propuesta modelo de atribución',description:'Preparar deck con las 3 opciones de atribución para compartir antes del jueves.',client:'Airtm',assignee:'Vos',dueDate:add(4),priority:'high',status:'todo',createdAt:new Date().toISOString(),meetingTitle:'Airtm Paid Media Review',tags:['data']},
-    {id:'s3',title:'Revisar shortlist de influencers',description:'Dar feedback sobre los 15 creadores seleccionados. Prioridad: brand fit.',client:'Didi',assignee:'Equipo Content',dueDate:add(5),priority:'medium',status:'todo',createdAt:new Date().toISOString(),meetingTitle:'Didi Studio Kickoff',tags:['studio']},
-    {id:'s4',title:'Enviar benchmarks TikTok al cliente',description:'Compilar CTR y CVR del vertical food delivery y enviar para dar contexto.',client:'Didi',assignee:'Vos',dueDate:add(-1),priority:'high',status:'todo',createdAt:new Date().toISOString(),meetingTitle:'Didi Studio Kickoff',tags:['reporting']},
-    {id:'s5',title:'Definir OKRs para Q3',description:'Preparar borrador de OKRs para el Growth team. Alinear antes de presentar.',client:'Interno',assignee:'Vos',dueDate:add(8),priority:'medium',status:'todo',createdAt:new Date().toISOString(),meetingTitle:'1:1 manager',tags:['strategy']},
+// ════════════════════════════════════════
+function sampleData(){
+  const add=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];};
+  const now=new Date().toISOString();
+  return[
+    {id:'s1',title:'Actualizar brief creativo para Meta',description:'Incluir benchmarks de performance Q2 y CTAs actualizados.',client:'Airtm',assignee:'Vos',dueDate:add(2),priority:'high',status:'in_progress',createdAt:now,meetingTitle:'Airtm Paid Media Review',tags:['creative'],comments:[],activityLog:[{type:'created',text:'Card creada desde reunión',ts:now}],rescheduleHistory:[],blockedReason:null,blockedAt:null},
+    {id:'s2',title:'Propuesta modelo de atribución',description:'Deck con las 3 opciones para compartir antes del jueves.',client:'Airtm',assignee:'Vos',dueDate:add(4),priority:'high',status:'todo',createdAt:now,meetingTitle:'Airtm Paid Media Review',tags:['data'],comments:[],activityLog:[{type:'created',text:'Card creada desde reunión',ts:now}],rescheduleHistory:[],blockedReason:null,blockedAt:null},
+    {id:'s3',title:'Revisar shortlist de influencers',description:'Feedback sobre los 15 creadores. Prioridad: brand fit.',client:'Didi',assignee:'Equipo Content',dueDate:add(5),priority:'medium',status:'todo',createdAt:now,meetingTitle:'Didi Studio Kickoff',tags:['studio'],comments:[],activityLog:[{type:'created',text:'Card creada desde reunión',ts:now}],rescheduleHistory:[],blockedReason:null,blockedAt:null},
+    {id:'s4',title:'Enviar benchmarks TikTok al cliente',description:'Compilar CTR y CVR del vertical food delivery.',client:'Didi',assignee:'Vos',dueDate:add(-1),priority:'high',status:'blocked',createdAt:now,meetingTitle:'Didi Studio Kickoff',tags:['reporting'],comments:[{author:'Vos',text:'Esperando acceso al dashboard del cliente.',ts:now}],activityLog:[{type:'blocked',text:'Bloqueada: Esperando acceso al dashboard',ts:now}],rescheduleHistory:[],blockedReason:'Esperando acceso al dashboard del cliente',blockedAt:now},
+    {id:'s5',title:'Definir OKRs para Q3',description:'Borrador de OKRs para el Growth team. Alinear antes de presentar.',client:'Interno',assignee:'Vos',dueDate:add(8),priority:'medium',status:'todo',createdAt:now,meetingTitle:'1:1 manager',tags:['strategy'],comments:[],activityLog:[{type:'created',text:'Card creada desde reunión',ts:now}],rescheduleHistory:[],blockedReason:null,blockedAt:null},
+    {id:'s6',title:'Setup tracking de eventos Braze',description:'Configurar los eventos de conversión para la campaña de re-engagement.',client:'PedidosYa',assignee:'Equipo Owned',dueDate:add(3),priority:'high',status:'in_progress',createdAt:now,meetingTitle:'PedidosYa Owned Media Q2',tags:['owned-media'],comments:[],activityLog:[{type:'created',text:'Card creada desde reunión',ts:now}],rescheduleHistory:[],blockedReason:null,blockedAt:null},
   ];
 }
-
-// ═══════════════════════════════
+ 
+// ════════════════════════════════════════
 //  HELPERS
-// ═══════════════════════════════
-function fmtDate(d) {
-  if (!d) return '';
-  const dt = new Date(d+'T12:00:00'), td = new Date(); td.setHours(0,0,0,0);
-  const diff = Math.ceil((dt - td) / 86400000);
-  if (diff < 0)  return `Vencida hace ${Math.abs(diff)}d`;
-  if (diff === 0) return 'Vence hoy';
-  if (diff === 1) return 'Mañana';
-  if (diff <= 7)  return `En ${diff} días`;
-  return dt.toLocaleDateString('es-AR', {day:'numeric', month:'short'});
+// ════════════════════════════════════════
+const me=()=>currentUser?.given_name||currentUser?.email||'Vos';
+function fmtDate(d){
+  if(!d)return'';
+  const dt=new Date(d+'T12:00:00'),td=new Date();td.setHours(0,0,0,0);
+  const diff=Math.ceil((dt-td)/86400000);
+  if(diff<0)return`Vencida hace ${Math.abs(diff)}d`;
+  if(diff===0)return'Vence hoy';if(diff===1)return'Mañana';
+  if(diff<=7)return`En ${diff}d`;
+  return dt.toLocaleDateString('es-AR',{day:'numeric',month:'short'});
 }
-function dcls(d) {
-  if (!d) return '';
-  const dt = new Date(d+'T12:00:00'), td = new Date(); td.setHours(0,0,0,0);
-  const diff = Math.ceil((dt - td) / 86400000);
-  return diff < 0 ? 'due-ov' : diff <= 2 ? 'due-sn' : '';
+function dcls(d){
+  if(!d)return'';
+  const dt=new Date(d+'T12:00:00'),td=new Date();td.setHours(0,0,0,0);
+  const diff=Math.ceil((dt-td)/86400000);
+  return diff<0?'due-ov':diff<=2?'due-sn':'';
 }
-function slbl(s) { return {todo:'To Do',in_progress:'En progreso',done:'Listo',pending_approval:'Por aprobar'}[s]||s; }
-function esc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ═══════════════════════════════
-//  CARD RENDER
-// ═══════════════════════════════
-function tcard(c, prop) {
-  const pm = {high:'Alta ↑', medium:'Media →', low:'Baja ↓'};
-  const pc = {high:'b-high', medium:'b-med', low:'b-low'};
-  return `<div class="tc${prop?' prop':''}">
-    <div class="tc-top">
-      <span class="badge ${pc[c.priority]||'b-low'}">${pm[c.priority]||c.priority}</span>
-      <div class="tc-title">${esc(c.title)}</div>
-      <span class="badge ${prop?'b-pa':'b-'+c.status}">${prop?'Por aprobar':slbl(c.status)}</span>
-    </div>
-    <div class="tc-desc">${esc(c.description)}</div>
-    <div class="tc-meta">
-      <span class="badge b-cl">${esc(c.client)}</span>
-      <span class="chip">👤 ${esc(c.assignee)}</span>
-      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
-      ${c.meetingTitle?`<span class="mref">📝 ${esc(c.meetingTitle)}</span>`:''}
-    </div>
-    <div class="tc-acts">
-      ${prop?`
-        <button class="btn btn-ok btn-sm" onclick="approveCard('${c.id}')">✓ Aprobar</button>
-        <button class="btn btn-x btn-sm"  onclick="rejectCard('${c.id}')">✕ Rechazar</button>
-      `:`
-        <select class="fi" onchange="updateStatus('${c.id}',this.value)">
-          <option value="todo"        ${c.status==='todo'?'selected':''}>To Do</option>
-          <option value="in_progress" ${c.status==='in_progress'?'selected':''}>En progreso</option>
-          <option value="done"        ${c.status==='done'?'selected':''}>Listo ✓</option>
-        </select>
-        <input type="date" class="fi" value="${esc(c.dueDate||'')}" onchange="updateDue('${c.id}',this.value)">
-      `}
-    </div>
-  </div>`;
+function fmtTs(ts){
+  if(!ts)return'';
+  const d=new Date(ts);
+  return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
 }
-
-// ═══════════════════════════════
+function slbl(s){return{todo:'To Do',in_progress:'En progreso',done:'Listo',blocked:'Bloqueada',pending_approval:'Por aprobar'}[s]||s;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const pmMap={high:'Alta ↑',medium:'Media →',low:'Baja ↓'};
+const pcMap={high:'b-high',medium:'b-med',low:'b-low'};
+ 
+// ════════════════════════════════════════
+//  HEALTH LOGIC
+// ════════════════════════════════════════
+function calcHealth(clientName){
+  const td=new Date();td.setHours(0,0,0,0);
+  const cards=S.cards.filter(c=>c.client===clientName&&c.status!=='done');
+  const overdue=cards.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+  const blocked=cards.filter(c=>c.status==='blocked');
+  const highOverdue=overdue.filter(c=>c.priority==='high');
+  const soonDue=cards.filter(c=>{
+    if(!c.dueDate)return false;
+    const diff=Math.ceil((new Date(c.dueDate+'T12:00:00')-td)/86400000);
+    return diff>=0&&diff<=3;
+  });
+  const manyInProgress=cards.filter(c=>c.status==='in_progress').length>=3;
+  if(overdue.length>=2||highOverdue.length>=1||(blocked.length>0&&blocked.some(c=>c.priority==='high')))return'risk';
+  if(soonDue.length>=2||manyInProgress||overdue.length>=1)return'watch';
+  return'healthy';
+}
+ 
+function getRisks(clientName){
+  const td=new Date();td.setHours(0,0,0,0);
+  const cards=S.cards.filter(c=>c.client===clientName&&c.status!=='done');
+  const risks=[];
+  const overdue=cards.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+  if(overdue.length>0) risks.push(`${overdue.length} tarea${overdue.length>1?'s':''} vencida${overdue.length>1?'s':''}: ${overdue.map(c=>c.title).join(', ')}`);
+  const blocked=cards.filter(c=>c.status==='blocked');
+  if(blocked.length>0) risks.push(`${blocked.length} tarea${blocked.length>1?'s':''} bloqueada${blocked.length>1?'s':''}: ${blocked.map(c=>c.title).join(', ')}`);
+  const highPrio=cards.filter(c=>c.priority==='high'&&c.status==='todo');
+  if(highPrio.length>=2) risks.push(`${highPrio.length} tareas de alta prioridad sin iniciar`);
+  return risks;
+}
+ 
+// ════════════════════════════════════════
+//  AUTOMATION HELPERS (future)
+// ════════════════════════════════════════
+function generateReminder(card){
+  const diff=Math.ceil((new Date(card.dueDate+'T12:00:00')-new Date())/86400000);
+  return`Recordatorio: "${card.title}" vence en ${diff} día${diff!==1?'s':''}. Responsable: ${card.assignee}.`;
+}
+function generateOverdueAlert(card){
+  const diff=Math.abs(Math.ceil((new Date(card.dueDate+'T12:00:00')-new Date())/86400000));
+  return`⚠ VENCIDA: "${card.title}" lleva ${diff} día${diff!==1?'s':''} vencida. Responsable: ${card.assignee}.`;
+}
+function generateClientRiskAlert(clientName){
+  const risks=getRisks(clientName);
+  return`🔴 Cliente en riesgo: ${clientName}\n${risks.map(r=>`• ${r}`).join('\n')}`;
+}
+function generateWeeklySummary(){
+  const td=new Date();td.setHours(0,0,0,0);
+  const active=S.cards.filter(c=>c.status!=='done');
+  const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+  const riskClients=S.clients.filter(c=>calcHealth(c)==='risk');
+  return`📊 Resumen semanal Winclap COO\n• ${active.length} tareas activas\n• ${overdue.length} vencidas\n• Clientes en riesgo: ${riskClients.length>0?riskClients.join(', '):'ninguno'}`;
+}
+ 
+// ════════════════════════════════════════
 //  SIDEBAR
-// ═══════════════════════════════
-function renderSidebar() {
-  const td  = new Date(); td.setHours(0,0,0,0);
-  const pc  = S.proposed.length;
-  const oc  = S.cards.filter(c => c.status!=='done' && c.dueDate && new Date(c.dueDate+'T12:00:00') < td).length;
-  const ini = currentUser ? (currentUser.given_name?.[0]||'')+(currentUser.family_name?.[0]||'') : '?';
-  document.getElementById('sidebar').innerHTML = `
+// ════════════════════════════════════════
+function renderSidebar(){
+  const td=new Date();td.setHours(0,0,0,0);
+  const pc=S.proposed.length;
+  const oc=S.cards.filter(c=>c.status!=='done'&&c.dueDate&&new Date(c.dueDate+'T12:00:00')<td).length;
+  const ini=(currentUser?.given_name?.[0]||'')+(currentUser?.family_name?.[0]||'');
+  document.getElementById('sidebar').innerHTML=`
     <div class="sb-head">
       <div class="sb-logo">Winclap <span>COO</span></div>
       <div class="user-chip">
-        <div class="avatar">${currentUser?.picture?`<img src="${currentUser.picture}" referrerpolicy="no-referrer">`:ini}</div>
+        <div class="avatar">${currentUser?.picture?`<img src="${currentUser.picture}" referrerpolicy="no-referrer">`:(ini||'?')}</div>
         <div class="user-name">${esc(currentUser?.given_name||currentUser?.email||'Usuario')}</div>
       </div>
     </div>
     <div class="sb-nav">
       <div class="nav-sec">Panel</div>
       <div class="ni ${S.view==='dashboard'?'active':''}" onclick="go('dashboard')"><span class="ni-icon">⊞</span> Dashboard</div>
-      <div class="ni ${S.view==='inbox'?'active':''}"     onclick="go('inbox')">    <span class="ni-icon">◎</span> Inbox ${pc>0?`<span class="nbadge nbw">${pc}</span>`:''}</div>
-      <div class="ni ${S.view==='tasks'?'active':''}"     onclick="go('tasks')">    <span class="ni-icon">☑</span> Tareas ${oc>0?`<span class="nbadge nbd">${oc}</span>`:''}</div>
+      <div class="ni ${S.view==='inbox'?'active':''}" onclick="go('inbox')"><span class="ni-icon">◎</span> Inbox ${pc>0?`<span class="nbadge nbw">${pc}</span>`:''}</div>
+      <div class="nav-sec">Trabajo</div>
+      <div class="ni ${S.view==='tasks'?'active':''}" onclick="go('tasks')"><span class="ni-icon">☑</span> Mis tareas ${oc>0?`<span class="nbadge nbd">${oc}</span>`:''}</div>
+      <div class="ni ${S.view==='clients'?'active':''}" onclick="go('clients')"><span class="ni-icon">◈</span> Clientes</div>
       <div class="nav-sec">Acción</div>
-      <div class="ni ${S.view==='notes'?'active':''}"     onclick="go('notes')">    <span class="ni-icon">✦</span> Procesar notas</div>
-      <div class="nav-sec">Clientes</div>
-      ${S.clients.map(cl=>`<div class="ni" style="font-size:12px;" onclick="go('tasks');S.filterClient='${esc(cl)}';render();"><span style="width:5px;height:5px;background:var(--border2);border-radius:50%;display:inline-block;flex-shrink:0;"></span> ${esc(cl)}</div>`).join('')}
+      <div class="ni ${S.view==='notes'?'active':''}" onclick="go('notes')"><span class="ni-icon">✦</span> Procesar notas</div>
     </div>
-    <div class="sb-footer">
-      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
-    </div>`;
+    <div class="sb-footer"><button class="btn-logout" onclick="logout()">Cerrar sesión</button></div>`;
 }
-
-// ═══════════════════════════════
+ 
+// ════════════════════════════════════════
 //  VIEWS
-// ═══════════════════════════════
-function vDashboard() {
-  const td = new Date(); td.setHours(0,0,0,0);
-  const ew = new Date(td); ew.setDate(td.getDate()+7);
-  const active = S.cards.filter(c => c.status !== 'done');
-  const dw  = active.filter(c => c.dueDate && new Date(c.dueDate+'T12:00:00') >= td && new Date(c.dueDate+'T12:00:00') <= ew).length;
-  const ov  = active.filter(c => c.dueDate && new Date(c.dueDate+'T12:00:00') < td).length;
-  const done = S.cards.filter(c => c.status === 'done').length;
-  const urgent = active.filter(c => c.dueDate && Math.ceil((new Date(c.dueDate+'T12:00:00')-td)/86400000) <= 3)
-                       .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate));
-  const byCl = S.clients.map(cl => {
-    const cc  = S.cards.filter(c => c.client===cl && c.status!=='done');
-    const oc2 = cc.filter(c => c.dueDate && new Date(c.dueDate+'T12:00:00') < td);
-    return {name:cl, total:cc.length, overdue:oc2.length};
-  }).sort((a,b) => b.total - a.total);
-  const gr = ['Buenos días','Buenas tardes','Buenas noches'][Math.floor(new Date().getHours()/6) > 2 ? 2 : Math.floor(new Date().getHours()/8)];
-
-  return `
+// ════════════════════════════════════════
+ 
+// ── DASHBOARD ──
+function vDashboard(){
+  const td=new Date();td.setHours(0,0,0,0);
+  const ew=new Date(td);ew.setDate(td.getDate()+7);
+  const active=S.cards.filter(c=>c.status!=='done');
+  const dw=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')>=td&&new Date(c.dueDate+'T12:00:00')<=ew).length;
+  const ov=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td).length;
+  const bl=active.filter(c=>c.status==='blocked').length;
+  const done=S.cards.filter(c=>c.status==='done').length;
+  const urgent=active.filter(c=>c.dueDate&&Math.ceil((new Date(c.dueDate+'T12:00:00')-td)/86400000)<=3)
+    .sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  const riskClients=S.clients.filter(c=>calcHealth(c)==='risk');
+  const gr=new Date().getHours()<12?'Buenos días':new Date().getHours()<19?'Buenas tardes':'Buenas noches';
+  return`
     <div class="phdr">
       <div>
-        <div class="psub">${gr} · ${new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:3px;">${gr} · ${new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</div>
         <div class="ptitle">Panel de operaciones</div>
       </div>
       <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
     </div>
     <div class="sgrid">
-      <div class="sbox"><div class="slbl">Tareas activas</div><div class="sval">${active.length}</div></div>
+      <div class="sbox"><div class="slbl">Activas</div><div class="sval">${active.length}</div></div>
       <div class="sbox"><div class="slbl">Vencen esta semana</div><div class="sval sv-w">${dw}</div></div>
       <div class="sbox"><div class="slbl">Vencidas</div><div class="sval sv-d">${ov}</div></div>
-      <div class="sbox"><div class="slbl">Completadas</div><div class="sval sv-s">${done}</div></div>
+      <div class="sbox"><div class="slbl">Bloqueadas</div><div class="sval sv-b">${bl}</div></div>
     </div>
-    ${S.proposed.length>0?`<div class="ibar ibar-w"><span style="font-size:13px;font-weight:500;">◎ ${S.proposed.length} tarea${S.proposed.length>1?'s':''} esperando tu aprobación</span><button class="btn btn-sm" onclick="go('inbox')" style="border-color:var(--warning);color:var(--warning);">Ver inbox →</button></div>`:''}
+    ${S.proposed.length>0?`<div class="ibar ibar-w"><span style="font-size:13px;font-weight:500;">◎ ${S.proposed.length} tarea${S.proposed.length>1?'s':''} esperando aprobación</span><button class="btn btn-sm" onclick="go('inbox')" style="border-color:var(--warning);color:var(--warning);">Ver inbox →</button></div>`:''}
+    ${riskClients.length>0?`<div class="ibar ibar-d"><span style="font-size:13px;font-weight:500;">🔴 ${riskClients.length} cliente${riskClients.length>1?'s':''} en riesgo: ${riskClients.join(', ')}</span><button class="btn btn-sm" onclick="go('clients')" style="border-color:var(--danger);color:var(--danger);">Ver clientes →</button></div>`:''}
     <div class="twocol">
       <div>
-        <div class="shdr"><h3>Urgentes & Vencidas</h3><button class="btn btn-sm" onclick="go('tasks')">Ver todas</button></div>
-        ${urgent.length===0?'<div class="empty"><div class="eico">🟢</div><p>Sin tareas urgentes — todo en orden</p></div>':urgent.slice(0,5).map(c=>tcard(c,false)).join('')}
+        <div class="shdr"><h3>Urgentes & Vencidas</h3><button class="btn btn-sm" onclick="go('tasks')">Ver mis tareas</button></div>
+        ${urgent.length===0?'<div class="empty"><p>🟢 Sin tareas urgentes</p></div>':urgent.slice(0,4).map(c=>tcMini(c)).join('')}
       </div>
       <div>
-        <div class="shdr"><h3>Por cliente</h3></div>
-        ${byCl.length===0?'<div class="empty"><p>Sin clientes aún</p></div>':''}
-        ${byCl.map(cl=>`<div class="cr">
-          <div><div class="cn">${esc(cl.name)}</div>${cl.overdue>0?`<span class="ot">⚠ ${cl.overdue} vencida${cl.overdue>1?'s':''}</span>`:''}</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:12px;color:var(--text2);">${cl.total} activas</span>
-            <button class="btn btn-sm" onclick="go('tasks');S.filterClient='${esc(cl.name)}';render();">Ver →</button>
-          </div>
-        </div>`).join('')}
+        <div class="shdr"><h3>Estado de clientes</h3><button class="btn btn-sm" onclick="go('clients')">Ver todos</button></div>
+        ${S.clients.map(cl=>{
+          const h=calcHealth(cl);
+          const cc=S.cards.filter(c=>c.client===cl&&c.status!=='done');
+          const oc2=S.cards.filter(c=>c.client===cl&&c.dueDate&&new Date(c.dueDate+'T12:00:00')<td&&c.status!=='done');
+          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:.5px solid var(--border);cursor:pointer;" onclick="openClient('${esc(cl)}')">
+            <div>
+              <div style="font-size:13px;font-weight:500;margin-bottom:3px;">${esc(cl)}</div>
+              ${oc2.length>0?`<span style="font-size:11px;color:var(--danger);">⚠ ${oc2.length} vencida${oc2.length>1?'s':''}</span>`:''}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span style="font-size:12px;color:var(--text2);">${cc.length} activas</span>
+              <span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
 }
-
-function vInbox() {
-  return `
-    <div class="phdr">
-      <div><div class="ptitle">Inbox</div><div class="psub">Revisá y aprobá las cards generadas por IA</div></div>
-      ${S.proposed.length>0?`<div style="display:flex;gap:8px;"><button class="btn btn-ok" onclick="approveAll()">✓ Aprobar todas (${S.proposed.length})</button><button class="btn btn-x" onclick="rejectAll()">✕ Rechazar todas</button></div>`:''}
-    </div>
-    ${S.proposed.length===0?`<div class="empty" style="padding:5rem;">
-      <div class="eico">◎</div>
-      <p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:.5rem;">Inbox vacío</p>
-      <p style="margin-bottom:1.5rem;">Procesá las notas de tu próxima reunión para generar cards.</p>
-      <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
-    </div>`:S.proposed.map(c=>tcard(c,true)).join('')}`;
-}
-
-function vNotes() {
-  const hasKey = !!getAK();
-  return `
-    <div class="phdr">
-      <div><div class="ptitle">Procesar notas</div><div class="psub">Gemini IA analiza tus notas y propone tasks accionables</div></div>
-      <button class="btn btn-sm" onclick="openAK()" style="color:${hasKey?'var(--success)':'var(--text2)'};">⚙ ${hasKey?'API Key configurada ✓':'Configurar API Key'}</button>
-    </div>
-    ${!hasKey?`<div class="ibar ibar-w"><span style="font-size:13px;">Configurá tu Gemini API Key para poder procesar notas.</span><button class="btn btn-sm" onclick="openAK()" style="border-color:var(--warning);color:var(--warning);">Configurar →</button></div>`:''}
-    <div style="max-width:720px;">
-      <div class="fg">
-        <label class="fl">Reunión / Asunto del mail</label>
-        <input type="text" class="fi" id="mt" placeholder="Ej: Interna: Airtm Content &amp; Paid 28 abr 2026" value="${esc(S.meetingTitle)}" oninput="S.meetingTitle=this.value">
-      </div>
-      <div class="fg">
-        <label class="fl">Notas de la reunión</label>
-        <textarea class="fi" id="nt" rows="13" placeholder="Pegá acá las notas de Gemini o Granola..." oninput="S.noteText=this.value">${esc(S.noteText)}</textarea>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <button class="btn btn-a" id="pbtn" onclick="processNotes()" ${S.processing||!hasKey?'disabled':''}>
-          ${S.processing?`<span class="spin">◌</span> Analizando con IA...`:'✦ Generar cards con IA'}
-        </button>
-        <button class="btn" onclick="S.noteText='';S.meetingTitle='';render()">Limpiar</button>
-      </div>
-      ${S.proposed.length>0?`<div class="ibar ibar-s" style="margin-top:1.25rem;"><span>${S.proposed.length} cards listas para aprobar</span><button class="btn btn-sm" onclick="go('inbox')" style="border-color:var(--success);color:var(--success);">Ver inbox →</button></div>`:''}
-      <hr class="dv">
-      <div style="font-size:12px;color:var(--text3);line-height:1.9;">
-        <p style="font-weight:500;color:var(--text2);font-size:13px;margin-bottom:.5rem;">📌 Flujo recomendado</p>
-        <p>1. Cuando Gemini te mande el resumen por mail desde <code>gemini-notes@google.com</code>, copiá el contenido.</p>
-        <p>2. Pegalo arriba junto con el nombre de la reunión (el asunto del mail) y hacé click en "Generar cards".</p>
-        <p>3. Revisá las cards propuestas en el Inbox y aprobá las que correspondan.</p>
-        <p style="margin-top:.5rem;color:var(--text2);">🔜 <strong style="color:var(--text2);">Próximamente:</strong> integración automática con Gmail vía Google Apps Script — sin copiar nada.</p>
-      </div>
-    </div>`;
-}
-
-function vTasks() {
-  let fl = S.cards;
-  if (S.filterClient !== 'all') fl = fl.filter(c => c.client === S.filterClient);
-  if (S.filterStatus !== 'all') fl = fl.filter(c => c.status === S.filterStatus);
-  const td = new Date(); td.setHours(0,0,0,0);
-  const srt = [...fl].sort((a,b) => {
-    if (a.status==='done' && b.status!=='done') return 1;
-    if (b.status==='done' && a.status!=='done') return -1;
-    if (!a.dueDate) return 1; if (!b.dueDate) return -1;
-    return new Date(a.dueDate) - new Date(b.dueDate);
+ 
+// ── TASKS ──
+function vTasks(){
+  const td=new Date();td.setHours(0,0,0,0);
+  let fl=S.cards;
+  if(S.filterClient!=='all') fl=fl.filter(c=>c.client===S.filterClient);
+  if(S.filterStatus!=='all') fl=fl.filter(c=>c.status===S.filterStatus);
+  const srt=[...fl].sort((a,b)=>{
+    if(a.status==='done'&&b.status!=='done')return 1;
+    if(b.status==='done'&&a.status!=='done')return-1;
+    if(!a.dueDate)return 1;if(!b.dueDate)return-1;
+    return new Date(a.dueDate)-new Date(b.dueDate);
   });
-  return `
+  const ov=fl.filter(c=>c.status!=='done'&&c.dueDate&&new Date(c.dueDate+'T12:00:00')<td).length;
+  const bl=fl.filter(c=>c.status==='blocked').length;
+ 
+  if(S.tasksView==='kanban') return vTasksKanban(fl);
+ 
+  return`
     <div class="phdr">
-      <div><div class="ptitle">Todas las tareas</div><div class="psub">${srt.length} tarea${srt.length!==1?'s':''}</div></div>
-      <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
+      <div><div class="ptitle">Mis tareas</div><div class="psub">Centro de ejecución personal</div></div>
+      <div class="phdr-actions">
+        <div class="toggle-group">
+          <button class="toggle-btn ${S.tasksView==='list'?'active':''}" onclick="S.tasksView='list';render()">☰ Lista</button>
+          <button class="toggle-btn ${S.tasksView==='kanban'?'active':''}" onclick="S.tasksView='kanban';render()">⊞ Kanban</button>
+        </div>
+        <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
+      </div>
     </div>
+    ${ov>0?`<div class="ibar ibar-d"><span style="font-size:13px;font-weight:500;">⚠ ${ov} tarea${ov>1?'s':''} vencida${ov>1?'s':''}</span></div>`:''}
+    ${bl>0?`<div class="ibar" style="background:var(--blocked-bg);border:.5px solid var(--blocked-border);margin-bottom:1.1rem;"><span style="font-size:13px;font-weight:500;color:var(--blocked);">◉ ${bl} tarea${bl>1?'s':''} bloqueada${bl>1?'s':''}</span></div>`:''}
     <div class="filters">
-      <span style="font-size:12px;color:var(--text2);">Filtrar:</span>
       <select class="fi" onchange="S.filterClient=this.value;render()">
         <option value="all" ${S.filterClient==='all'?'selected':''}>Todos los clientes</option>
         ${S.clients.map(cl=>`<option value="${esc(cl)}" ${S.filterClient===cl?'selected':''}>${esc(cl)}</option>`).join('')}
       </select>
       <select class="fi" onchange="S.filterStatus=this.value;render()">
-        <option value="all"         ${S.filterStatus==='all'?'selected':''}>Todos los estados</option>
-        <option value="todo"        ${S.filterStatus==='todo'?'selected':''}>To Do</option>
+        <option value="all">Todos los estados</option>
+        <option value="todo" ${S.filterStatus==='todo'?'selected':''}>To Do</option>
         <option value="in_progress" ${S.filterStatus==='in_progress'?'selected':''}>En progreso</option>
-        <option value="done"        ${S.filterStatus==='done'?'selected':''}>Listo</option>
+        <option value="blocked" ${S.filterStatus==='blocked'?'selected':''}>Bloqueadas</option>
+        <option value="done" ${S.filterStatus==='done'?'selected':''}>Listo</option>
+      </select>
+      <span style="font-size:12px;color:var(--text2);margin-left:auto;">${srt.length} tarea${srt.length!==1?'s':''}</span>
+    </div>
+    ${srt.length===0?'<div class="empty"><p>No hay tareas con estos filtros.</p></div>':srt.map(c=>tcFull(c,false)).join('')}`;
+}
+ 
+function vTasksKanban(cards){
+  const cols=[
+    {key:'todo',label:'To Do',cls:''},
+    {key:'in_progress',label:'En progreso',cls:''},
+    {key:'blocked',label:'Bloqueadas',cls:'color:var(--blocked)'},
+    {key:'done',label:'Listo',cls:''},
+  ];
+  return`
+    <div class="phdr">
+      <div><div class="ptitle">Mis tareas</div><div class="psub">Centro de ejecución personal</div></div>
+      <div class="phdr-actions">
+        <div class="toggle-group">
+          <button class="toggle-btn ${S.tasksView==='list'?'active':''}" onclick="S.tasksView='list';render()">☰ Lista</button>
+          <button class="toggle-btn ${S.tasksView==='kanban'?'active':''}" onclick="S.tasksView='kanban';render()">⊞ Kanban</button>
+        </div>
+        <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
+      </div>
+    </div>
+    <div class="kanban">
+      ${cols.map(col=>{
+        const colCards=cards.filter(c=>c.status===col.key).sort((a,b)=>{
+          if(!a.dueDate)return 1;if(!b.dueDate)return-1;
+          return new Date(a.dueDate)-new Date(b.dueDate);
+        });
+        return`<div class="kb-col">
+          <div class="kb-col-header">
+            <span class="kb-col-title" style="${col.cls}">${col.label}</span>
+            <span class="kb-count">${colCards.length}</span>
+          </div>
+          ${colCards.map(c=>{
+            const td=new Date();td.setHours(0,0,0,0);
+            const ov=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td;
+            return`<div class="kb-card ${c.status==='blocked'?'kb-blocked':ov?'kb-overdue':''}" onclick="openTask('${c.id}')">
+              <div class="kb-card-title">${esc(c.title)}</div>
+              <div class="kb-card-meta">
+                <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]||c.priority}</span>
+                ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+                <span class="badge b-cl" style="font-size:10px;">${esc(c.client)}</span>
+              </div>
+            </div>`;
+          }).join('')}
+          ${colCards.length===0?`<div style="text-align:center;padding:1.5rem .5rem;color:var(--text3);font-size:12px;">Sin tareas</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+ 
+// ── CLIENTS ──
+function vClients(){
+  if(S.subView==='client-detail'&&S.selectedClient) return vClientDetail(S.selectedClient);
+  return`
+    <div class="phdr">
+      <div><div class="ptitle">Clientes</div><div class="psub">Visibilidad y control operativo cross-team</div></div>
+    </div>
+    ${S.clients.length===0?'<div class="empty"><p>Sin clientes aún. Procesá notas para crear tasks.</p></div>':''}
+    <div class="client-grid">
+      ${S.clients.map(cl=>{
+        const h=calcHealth(cl);
+        const td=new Date();td.setHours(0,0,0,0);
+        const allCards=S.cards.filter(c=>c.client===cl);
+        const active=allCards.filter(c=>c.status!=='done');
+        const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+        const blocked=active.filter(c=>c.status==='blocked');
+        const high=active.filter(c=>c.priority==='high');
+        const nextDeadline=active.filter(c=>c.dueDate).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
+        return`<div class="client-card ${h}" onclick="openClient('${esc(cl)}')">
+          <div class="cc-top">
+            <div class="cc-name">${esc(cl)}</div>
+            <span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>
+          </div>
+          <div class="cc-metrics">
+            <div class="cc-metric"><div class="cc-metric-val">${active.length}</div><div class="cc-metric-lbl">Activas</div></div>
+            <div class="cc-metric"><div class="cc-metric-val" style="${overdue.length>0?'color:var(--danger)':''}">${overdue.length}</div><div class="cc-metric-lbl">Vencidas</div></div>
+            <div class="cc-metric"><div class="cc-metric-val" style="${blocked.length>0?'color:var(--blocked)':''}">${blocked.length}</div><div class="cc-metric-lbl">Bloqueadas</div></div>
+          </div>
+          <div class="cc-meta">
+            ${high.length>0?`<span class="badge b-high">↑ ${high.length} alta prioridad</span>`:''}
+          </div>
+          <div class="cc-footer">
+            <div class="cc-deadline">${nextDeadline?`Próximo: <span>${fmtDate(nextDeadline.dueDate)}</span>`:'Sin fechas próximas'}</div>
+            <button class="btn btn-sm">Ver detalle →</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+ 
+function vClientDetail(clientName){
+  const td=new Date();td.setHours(0,0,0,0);
+  const h=calcHealth(clientName);
+  const allCards=S.cards.filter(c=>c.client===clientName);
+  const active=allCards.filter(c=>c.status!=='done');
+  const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+  const blocked=active.filter(c=>c.status==='blocked');
+  const risks=getRisks(clientName);
+  const statuses=[
+    {key:'in_progress',label:'En progreso'},
+    {key:'todo',label:'To Do'},
+    {key:'blocked',label:'Bloqueadas'},
+    {key:'done',label:'Listo'},
+  ];
+ 
+  let filtered=allCards;
+  if(S.filterAssignee!=='all') filtered=filtered.filter(c=>c.assignee===S.filterAssignee);
+ 
+  const assignees=[...new Set(allCards.map(c=>c.assignee))];
+  const soon=active.filter(c=>{
+    if(!c.dueDate)return false;
+    const diff=Math.ceil((new Date(c.dueDate+'T12:00:00')-td)/86400000);
+    return diff>=0&&diff<=5;
+  }).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+ 
+  return`
+    <div class="back-btn" onclick="S.subView=null;S.selectedClient=null;S.filterAssignee='all';render()">← Volver a clientes</div>
+    <div class="client-detail-header">
+      <div class="cdh-top">
+        <div class="cdh-name">${esc(clientName)}</div>
+        <span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>
+      </div>
+      <div class="cdh-metrics">
+        <div class="cdh-metric"><div class="cdh-metric-val">${active.length}</div><div class="cdh-metric-lbl">Activas</div></div>
+        <div class="cdh-metric"><div class="cdh-metric-val" style="${overdue.length>0?'color:var(--danger)':''}">${overdue.length}</div><div class="cdh-metric-lbl">Vencidas</div></div>
+        <div class="cdh-metric"><div class="cdh-metric-val" style="${blocked.length>0?'color:var(--blocked)':''}">${blocked.length}</div><div class="cdh-metric-lbl">Bloqueadas</div></div>
+        <div class="cdh-metric"><div class="cdh-metric-val">${allCards.filter(c=>c.status==='done').length}</div><div class="cdh-metric-lbl">Completadas</div></div>
+        <div class="cdh-metric"><div class="cdh-metric-val" style="${soon.length>0?'color:var(--warning)':''}">${soon.length}</div><div class="cdh-metric-lbl">Vencen pronto</div></div>
+      </div>
+    </div>
+    ${risks.length>0?`<div class="risk-bar"><div class="risk-bar-title">Riesgos detectados</div>${risks.map(r=>`<div class="risk-item">${esc(r)}</div>`).join('')}</div>`:''}
+    <div class="filters" style="margin-bottom:1.25rem;">
+      <div class="toggle-group">
+        <button class="toggle-btn ${S.filterAssignee==='all'?'active':''}" onclick="S.filterAssignee='all';render()">Todas</button>
+        <button class="toggle-btn" onclick="S.filterAssignee='${esc(me())}';render()">Mis tareas</button>
+      </div>
+      <select class="fi" onchange="S.filterAssignee=this.value;render()">
+        <option value="all">Por responsable</option>
+        ${assignees.map(a=>`<option value="${esc(a)}" ${S.filterAssignee===a?'selected':''}>${esc(a)}</option>`).join('')}
       </select>
     </div>
-    ${srt.length===0?'<div class="empty"><p>No hay tareas con estos filtros.</p></div>':srt.map(c=>tcard(c,false)).join('')}`;
+    ${statuses.map(st=>{
+      const stCards=filtered.filter(c=>c.status===st.key);
+      if(stCards.length===0)return'';
+      return`<div style="margin-bottom:1.5rem;">
+        <div class="shdr">
+          <h3 style="${st.key==='blocked'?'color:var(--blocked)':''}">${st.label} (${stCards.length})</h3>
+        </div>
+        ${stCards.sort((a,b)=>{if(!a.dueDate)return 1;if(!b.dueDate)return-1;return new Date(a.dueDate)-new Date(b.dueDate);}).map(c=>tcFull(c,false)).join('')}
+      </div>`;
+    }).join('')}
+    ${filtered.length===0?'<div class="empty"><p>Sin tareas con este filtro.</p></div>':''}`;
 }
-
-// ═══════════════════════════════
-//  NAVIGATION + RENDER
-// ═══════════════════════════════
-function go(v) { S.view = v; render(); }
-function render() {
+ 
+// ── INBOX ──
+function vInbox(){
+  return`
+    <div class="phdr">
+      <div><div class="ptitle">Inbox</div><div class="psub">Revisá y aprobá las cards generadas por IA</div></div>
+      ${S.proposed.length>0?`<div class="phdr-actions"><button class="btn btn-ok" onclick="approveAll()">✓ Aprobar todas (${S.proposed.length})</button><button class="btn btn-x" onclick="rejectAll()">✕ Rechazar todas</button></div>`:''}
+    </div>
+    ${S.proposed.length===0?`<div class="empty" style="padding:5rem;">
+      <div style="font-size:28px;margin-bottom:.75rem;">◎</div>
+      <p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:.5rem;">Inbox vacío</p>
+      <p style="margin-bottom:1.5rem;">Procesá notas de una reunión para generar cards.</p>
+      <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
+    </div>`:S.proposed.map(c=>tcProp(c)).join('')}`;
+}
+ 
+// ── NOTES ──
+function vNotes(){
+  const hasKey=!!getAK();
+  return`
+    <div class="phdr">
+      <div><div class="ptitle">Procesar notas</div><div class="psub">IA analiza tus notas y propone tasks accionables</div></div>
+      <button class="btn btn-sm" onclick="openModal('ak-modal')" style="color:${hasKey?'var(--success)':'var(--text2)'};">⚙ ${hasKey?'API Key ✓':'Configurar API Key'}</button>
+    </div>
+    ${!hasKey?`<div class="ibar ibar-w"><span>Configurá tu Gemini API Key para procesar notas con IA.</span><button class="btn btn-sm" onclick="openModal('ak-modal')" style="border-color:var(--warning);color:var(--warning);">Configurar →</button></div>`:''}
+    <div style="max-width:720px;">
+      <div class="fg"><label class="fl">Reunión / Asunto del mail</label><input type="text" class="fi" id="mt" placeholder="Ej: Interna: Airtm Content &amp; Paid 28 abr 2026" value="${esc(S.meetingTitle)}" oninput="S.meetingTitle=this.value"></div>
+      <div class="fg"><label class="fl">Notas de la reunión</label><textarea class="fi" id="nt" rows="13" placeholder="Pegá acá las notas de Gemini o Granola..." oninput="S.noteText=this.value">${esc(S.noteText)}</textarea></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-a" onclick="processNotes()" ${S.processing||!hasKey?'disabled':''}>
+          ${S.processing?`<span class="spin">◌</span> Analizando...`:'✦ Generar cards con IA'}
+        </button>
+        <button class="btn" onclick="S.noteText='';S.meetingTitle='';render()">Limpiar</button>
+      </div>
+      ${S.proposed.length>0?`<div class="ibar ibar-s" style="margin-top:1.25rem;"><span>${S.proposed.length} cards listas en el inbox</span><button class="btn btn-sm" onclick="go('inbox')" style="border-color:var(--success);color:var(--success);">Ver inbox →</button></div>`:''}
+      <hr class="dv">
+      <div style="font-size:12px;color:var(--text3);line-height:1.9;">
+        <p style="font-weight:500;color:var(--text2);font-size:13px;margin-bottom:.5rem;">📌 Flujo automático</p>
+        <p>El script de Gmail detecta los mails de <code>gemini-notes@google.com</code> cada 30 min y los procesa automáticamente. Las cards aparecen acá para tu aprobación.</p>
+        <p style="margin-top:.5rem;">También podés pegar notas manualmente arriba para procesar al instante.</p>
+      </div>
+    </div>`;
+}
+ 
+// ════════════════════════════════════════
+//  CARD RENDERS
+// ════════════════════════════════════════
+function tcMini(c){
+  const td=new Date();td.setHours(0,0,0,0);
+  return`<div class="tc ${c.status==='blocked'?'blocked-card':c.dueDate&&new Date(c.dueDate+'T12:00:00')<td?'overdue-card':''}" onclick="openTask('${c.id}')">
+    <div class="tc-top">
+      <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
+      <div class="tc-title">${esc(c.title)}</div>
+    </div>
+    <div class="tc-meta">
+      <span class="badge b-cl">${esc(c.client)}</span>
+      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+      <span class="badge b-${c.status}">${slbl(c.status)}</span>
+    </div>
+  </div>`;
+}
+ 
+function tcFull(c,prop){
+  const td=new Date();td.setHours(0,0,0,0);
+  const isOv=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td&&c.status!=='done';
+  return`<div class="tc ${c.status==='blocked'?'blocked-card':isOv?'overdue-card':''}" onclick="openTask('${c.id}')">
+    <div class="tc-top">
+      <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
+      <div class="tc-title">${esc(c.title)}</div>
+      <span class="badge b-${c.status}">${slbl(c.status)}</span>
+    </div>
+    <div class="tc-desc">${esc(c.description)}</div>
+    ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
+    <div class="tc-meta" style="margin-top:7px;">
+      <span class="badge b-cl">${esc(c.client)}</span>
+      <span class="chip">👤 ${esc(c.assignee)}</span>
+      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+      ${c.meetingTitle?`<span style="font-size:11px;color:var(--text3);font-style:italic;">📝 ${esc(c.meetingTitle)}</span>`:''}
+      ${(c.comments||[]).length>0?`<span class="chip">💬 ${c.comments.length}</span>`:''}
+    </div>
+  </div>`;
+}
+ 
+function tcProp(c){
+  return`<div class="tc prop">
+    <div class="tc-top">
+      <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
+      <div class="tc-title">${esc(c.title)}</div>
+      <span class="badge b-pa">Por aprobar</span>
+    </div>
+    <div class="tc-desc">${esc(c.description)}</div>
+    <div class="tc-meta" style="margin-top:7px;">
+      <span class="badge b-cl">${esc(c.client)}</span>
+      <span class="chip">👤 ${esc(c.assignee)}</span>
+      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+      ${c.meetingTitle?`<span style="font-size:11px;color:var(--text3);font-style:italic;">📝 ${esc(c.meetingTitle)}</span>`:''}
+    </div>
+    <div class="tc-acts">
+      <button class="btn btn-ok btn-sm" onclick="event.stopPropagation();approveCard('${c.id}')">✓ Aprobar</button>
+      <button class="btn btn-x btn-sm" onclick="event.stopPropagation();rejectCard('${c.id}')">✕ Rechazar</button>
+    </div>
+  </div>`;
+}
+ 
+// ════════════════════════════════════════
+//  TASK DETAIL MODAL
+// ════════════════════════════════════════
+function openTask(id){
+  S.selectedTaskId=id;
+  const c=S.cards.find(x=>x.id===id);
+  if(!c)return;
+  const modal=document.getElementById('task-modal-content');
+  modal.innerHTML=renderTaskModal(c);
+  openModal('task-modal');
+}
+ 
+function renderTaskModal(c){
+  const activity=[...(c.activityLog||[])].reverse();
+  return`
+    <div class="modal-header">
+      <div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
+          <span class="badge b-${c.status}">${slbl(c.status)}</span>
+          <span class="badge b-cl">${esc(c.client)}</span>
+        </div>
+        <div class="modal-title">${esc(c.title)}</div>
+      </div>
+      <button class="btn btn-sm" onclick="closeModal('task-modal')" style="flex-shrink:0;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">Descripción</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;">${esc(c.description)}</p>
+      </div>
+      ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason" style="margin-bottom:1.25rem;">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
+      <div class="frow" style="margin-bottom:1.25rem;">
+        <div><div class="modal-section-title">Responsable</div><p style="font-size:13px;">👤 ${esc(c.assignee)}</p></div>
+        <div><div class="modal-section-title">Fecha de vencimiento</div><p style="font-size:13px;" class="${dcls(c.dueDate)}">${c.dueDate?fmtDate(c.dueDate):'Sin fecha'}</p></div>
+      </div>
+      ${c.meetingTitle?`<div class="modal-section"><div class="modal-section-title">Reunión de origen</div><p style="font-size:12px;color:var(--text2);">📝 ${esc(c.meetingTitle)}</p></div>`:''}
+ 
+      <!-- Actions -->
+      <div class="modal-section">
+        <div class="modal-section-title">Cambiar estado</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          ${['todo','in_progress','blocked','done'].map(st=>`<button class="btn btn-sm ${c.status===st?'btn-a':''}" onclick="changeStatus('${c.id}','${st}')">${slbl(st)}</button>`).join('')}
+        </div>
+      </div>
+ 
+      <!-- Block reason -->
+      ${c.status==='blocked'?`<div class="modal-section">
+        <div class="modal-section-title">Razón del bloqueo</div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" class="fi" id="block-reason" placeholder="¿Por qué está bloqueada?" value="${esc(c.blockedReason||'')}">
+          <button class="btn btn-sm" onclick="saveBlockReason('${c.id}')">Guardar</button>
+        </div>
+      </div>`:''}
+ 
+      <!-- Reschedule -->
+      <div class="modal-section">
+        <div class="modal-section-title">Reprogramar</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="date" class="fi" id="new-date" value="${esc(c.dueDate||'')}">
+          <input type="text" class="fi" id="reschedule-reason" placeholder="Razón (opcional)">
+          <button class="btn btn-sm" onclick="reschedule('${c.id}')">Reprogramar</button>
+        </div>
+        ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:.625rem;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}</div>`:''}
+      </div>
+ 
+      <!-- Comments -->
+      <div class="modal-section">
+        <div class="modal-section-title">Comentarios (${(c.comments||[]).length})</div>
+        ${(c.comments||[]).map(cm=>`<div class="comment-item"><div class="comment-author">${esc(cm.author)} · ${fmtTs(cm.ts)}</div><div class="comment-text">${esc(cm.text)}</div></div>`).join('')}
+        <div style="display:flex;gap:8px;margin-top:.625rem;">
+          <input type="text" class="fi" id="new-comment" placeholder="Agregar comentario...">
+          <button class="btn btn-sm btn-ok" onclick="addComment('${c.id}')">Comentar</button>
+        </div>
+      </div>
+ 
+      <!-- Activity log -->
+      ${activity.length>0?`<div class="modal-section">
+        <div class="modal-section-title">Historial</div>
+        ${activity.slice(0,8).map(a=>`<div class="activity-item">
+          <div class="activity-dot"></div>
+          <div><div class="activity-text">${esc(a.text)}</div><div class="activity-time">${fmtTs(a.ts)}</div></div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" onclick="closeModal('task-modal')">Cerrar</button>
+    </div>`;
+}
+ 
+// ════════════════════════════════════════
+//  MODAL UTILS
+// ════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('moverlay')) e.target.classList.remove('open');
+});
+ 
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+function go(v){
+  S.view=v;S.subView=null;S.selectedClient=null;
+  S.filterClient='all';S.filterStatus='all';S.filterAssignee='all';
+  render();
+}
+function openClient(name){
+  S.view='clients';S.subView='client-detail';S.selectedClient=name;
+  S.filterAssignee='all';render();
+}
+function render(){
   renderSidebar();
-  const map = { dashboard: vDashboard, inbox: vInbox, notes: vNotes, tasks: vTasks };
-  document.getElementById('mc').innerHTML = (map[S.view] || vDashboard)();
+  const map={dashboard:vDashboard,tasks:vTasks,clients:vClients,inbox:vInbox,notes:vNotes};
+  document.getElementById('mc').innerHTML=(map[S.view]||vDashboard)();
 }
-
-// ═══════════════════════════════
-//  ACTIONS
-// ═══════════════════════════════
-async function processNotes() {
-  const key  = getAK();
-  const text = document.getElementById('nt')?.value || S.noteText;
-  const title= document.getElementById('mt')?.value || S.meetingTitle;
-  if (!text.trim() || !key) return;
-  S.processing = true; S.noteText = text; S.meetingTitle = title; render();
-
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const prompt = `Sos el asistente COO de Winclap, una agencia de growth marketing en LATAM (clientes como Mercado Libre, Didi, NU, PedidosYa, Airtm). Tu rol es extraer tareas accionables y claras de las siguientes notas de reunión.
-
-Reunión: ${title || 'Sin título'}
-Fecha de hoy: ${today}
-
-Notas:
-${text}
-
-Instrucciones:
-- Extraé SOLO tareas accionables concretas (no menciones generales ni contexto)
-- Si hay muchos temas, priorizá las que tienen responsable y fecha implícita
-- Inferí el cliente del título o del contexto de las notas
-- Estimá fechas realistas según la urgencia del lenguaje usado
-
-Devolvé SOLO un array JSON válido, sin texto adicional, sin markdown, sin backticks. Cada objeto:
-{
-  "title": "título corto en español, máx 8 palabras",
-  "description": "qué hacer exactamente y por qué, 1-2 oraciones",
-  "client": "nombre del cliente o Interno",
-  "assignee": "nombre o rol del responsable, o Vos si no está claro",
-  "dueDate": "fecha ISO YYYY-MM-DD (hoy=${today}, estimar según urgencia: urgente=2-3d, normal=5-7d, largo plazo=10-14d)",
-  "priority": "high | medium | low",
-  "tags": ["tag1", "tag2"]
-}`;
-
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-      }
-    );
-    if (!resp.ok) throw new Error(`Gemini API error: ${resp.status}`);
-    const data  = await resp.json();
-    const raw   = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed= JSON.parse(clean);
-    const props = parsed.map((c,i) => ({
-      ...c,
-      id: `p-${Date.now()}-${i}`,
-      status: 'pending_approval',
-      createdAt: new Date().toISOString(),
-      meetingTitle: title || 'Sin título',
-    }));
-    S.proposed = [...S.proposed, ...props];
+ 
+// ════════════════════════════════════════
+//  TASK ACTIONS
+// ════════════════════════════════════════
+async function changeStatus(id,status){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const prev=c.status;
+  c.status=status;
+  c.activityLog=c.activityLog||[];
+  c.activityLog.push({type:'status',text:`Estado: ${slbl(prev)} → ${slbl(status)}`,ts:new Date().toISOString()});
+  if(status!=='blocked'){c.blockedReason=null;c.blockedAt=null;}
+  await saveDrive();
+  if(S.selectedTaskId===id) document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+  renderSidebar();
+}
+ 
+async function saveBlockReason(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const reason=document.getElementById('block-reason')?.value||'';
+  c.blockedReason=reason;
+  c.blockedAt=new Date().toISOString();
+  c.activityLog=c.activityLog||[];
+  c.activityLog.push({type:'blocked',text:`Razón de bloqueo actualizada: ${reason}`,ts:new Date().toISOString()});
+  await saveDrive();
+  document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+}
+ 
+async function reschedule(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const newDate=document.getElementById('new-date')?.value;
+  const reason=document.getElementById('reschedule-reason')?.value||'Sin razón especificada';
+  if(!newDate)return;
+  const oldDate=c.dueDate;
+  c.rescheduleHistory=c.rescheduleHistory||[];
+  c.rescheduleHistory.push({from:oldDate,to:newDate,reason,ts:new Date().toISOString()});
+  c.dueDate=newDate;
+  c.activityLog=c.activityLog||[];
+  c.activityLog.push({type:'reschedule',text:`Reprogramada ${oldDate?fmtDate(oldDate):'sin fecha'} → ${fmtDate(newDate)}. Razón: ${reason}`,ts:new Date().toISOString()});
+  await saveDrive();
+  document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+  render();
+}
+ 
+async function addComment(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const text=document.getElementById('new-comment')?.value?.trim();
+  if(!text)return;
+  const comment={author:me(),text,ts:new Date().toISOString()};
+  c.comments=c.comments||[];
+  c.comments.push(comment);
+  c.activityLog=c.activityLog||[];
+  c.activityLog.push({type:'comment',text:`${me()} comentó: "${text.substring(0,60)}${text.length>60?'...':''}"`,ts:new Date().toISOString()});
+  await saveDrive();
+  document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+}
+ 
+async function approveCard(id){
+  const c=S.proposed.find(x=>x.id===id);if(!c)return;
+  const ap={...c,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null};
+  S.cards=[...S.cards,ap];
+  S.proposed=S.proposed.filter(x=>x.id!==id);
+  if(!S.clients.includes(ap.client))S.clients=[...S.clients,ap.client];
+  await saveDrive();render();
+}
+async function rejectCard(id){S.proposed=S.proposed.filter(x=>x.id!==id);await saveDrive();render();}
+async function approveAll(){
+  const ap=S.proposed.map(c=>({...c,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null}));
+  S.cards=[...S.cards,...ap];
+  ap.forEach(c=>{if(!S.clients.includes(c.client))S.clients.push(c.client);});
+  S.proposed=[];
+  await saveDrive();S.view='dashboard';render();
+}
+async function rejectAll(){S.proposed=[];await saveDrive();render();}
+ 
+// ════════════════════════════════════════
+//  PROCESS NOTES
+// ════════════════════════════════════════
+async function processNotes(){
+  const key=getAK();
+  const text=document.getElementById('nt')?.value||S.noteText;
+  const title=document.getElementById('mt')?.value||S.meetingTitle;
+  if(!text.trim()||!key)return;
+  S.processing=true;S.noteText=text;S.meetingTitle=title;render();
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const prompt=`Sos el asistente COO de Winclap, una agencia de growth marketing en LATAM. Extraé las tareas accionables de estas notas.\n\nReunión: ${title||'Sin título'}\nFecha de hoy: ${today}\n\nNotas:\n${text}\n\nDevolvé SOLO un array JSON válido, sin texto adicional ni backticks. Cada objeto:\n{"title":"título corto en español máx 8 palabras","description":"qué hacer exactamente 1-2 oraciones","client":"nombre del cliente o Interno","assignee":"nombre o Vos si no está claro","dueDate":"YYYY-MM-DD estimado (urgente=2-3d normal=5-7d)","priority":"high|medium|low","tags":["tag"]}`;
+    const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.2}}),
+    });
+    if(!resp.ok)throw new Error(`Gemini ${resp.status}`);
+    const data=await resp.json();
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'[]';
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const props=parsed.map((c,i)=>({...c,id:`p-${Date.now()}-${i}`,status:'pending_approval',createdAt:new Date().toISOString(),meetingTitle:title||'Sin título'}));
+    S.proposed=[...S.proposed,...props];
     await saveDrive();
-  } catch(e) {
-    console.error(e);
-    alert('Error al procesar las notas. Verificá tu Gemini API Key y volvé a intentar.');
-  }
-  S.processing = false; render();
+  }catch(e){console.error(e);alert('Error al procesar. Verificá tu API Key.');}
+  S.processing=false;render();
 }
-
-async function approveCard(id) {
-  const c = S.proposed.find(x => x.id === id); if (!c) return;
-  S.cards    = [...S.cards, {...c, status:'todo'}];
-  S.proposed = S.proposed.filter(x => x.id !== id);
-  if (!S.clients.includes(c.client)) S.clients = [...S.clients, c.client];
-  await saveDrive(); render();
-}
-
-async function rejectCard(id) {
-  S.proposed = S.proposed.filter(x => x.id !== id);
-  await saveDrive(); render();
-}
-
-async function approveAll() {
-  const ap = S.proposed.map(c => ({...c, status:'todo'}));
-  S.cards = [...S.cards, ...ap];
-  ap.forEach(c => { if (!S.clients.includes(c.client)) S.clients.push(c.client); });
-  S.proposed = [];
-  await saveDrive(); S.view = 'dashboard'; render();
-}
-
-async function rejectAll() {
-  S.proposed = []; await saveDrive(); render();
-}
-
-async function updateStatus(id, status) {
-  S.cards = S.cards.map(c => c.id===id ? {...c, status} : c);
-  await saveDrive();
-}
-
-async function updateDue(id, dueDate) {
-  S.cards = S.cards.map(c => c.id===id ? {...c, dueDate} : c);
-  await saveDrive();
-}
+ 
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+// Auto-render sidebar on load just in case
+window.addEventListener('DOMContentLoaded',()=>{
+  // nothing needed, gsiReady handles init
+});
 </script>
 </body>
 </html>
