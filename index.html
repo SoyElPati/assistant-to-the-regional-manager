@@ -945,8 +945,8 @@ function openTask(id){
 function renderTaskModal(c){
   const activity=[...(c.activityLog||[])].reverse();
   return`
-    <div class="modal-header">
-      <div>
+    <div class="modal-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      <div style="flex:1;">
         <div style="display:flex;gap:6px;margin-bottom:6px;">
           <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
           <span class="badge b-${c.status}">${slbl(c.status)}</span>
@@ -954,34 +954,53 @@ function renderTaskModal(c){
         </div>
         <div class="modal-title">${esc(c.title)}</div>
       </div>
-      <button class="btn btn-sm" onclick="closeModal('task-modal')" style="flex-shrink:0;">✕</button>
+      <button class="btn btn-sm" onclick="closeModal('task-modal')" style="flex-shrink:0;margin-top:2px;">✕</button>
     </div>
     <div class="modal-body">
  
       <!-- Editable fields -->
-      <div class="frow" style="margin-bottom:1rem;">
-        <div class="fg" style="margin-bottom:0;">
-          <label class="fl">Responsable</label>
-          <input type="text" class="fi" id="edit-assignee" value="${esc(c.assignee||'')}" placeholder="Nombre del responsable">
+      <div style="background:var(--surface2);border:.5px solid var(--border);border-radius:9px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:.875rem;">Editar tarea</div>
+        <div class="frow" style="margin-bottom:.875rem;">
+          <div>
+            <label class="fl">Responsable</label>
+            <input type="text" class="fi" id="edit-assignee" value="${esc(c.assignee||'')}" placeholder="Nombre del responsable">
+          </div>
+          <div>
+            <label class="fl">Fecha de vencimiento</label>
+            <input type="date" class="fi" id="edit-duedate" value="${esc(c.dueDate||'')}">
+            ${c.dueDate?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:'<div style="font-size:11px;color:var(--text3);margin-top:3px;">Sin fecha asignada</div>'}
+          </div>
         </div>
-        <div class="fg" style="margin-bottom:0;">
-          <label class="fl">Fecha de vencimiento</label>
-          <input type="date" class="fi" id="edit-duedate" value="${esc(c.dueDate||'')}">
-          ${c.dueDate?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:'<div style="font-size:11px;color:var(--text3);margin-top:3px;">Sin fecha asignada</div>'}
+        <div class="frow" style="margin-bottom:.875rem;">
+          <div>
+            <label class="fl">Prioridad</label>
+            <select class="fi" id="edit-priority">
+              <option value="high" ${c.priority==='high'?'selected':''}>Alta ↑</option>
+              <option value="medium" ${c.priority==='medium'?'selected':''}>Media →</option>
+              <option value="low" ${c.priority==='low'?'selected':''}>Baja ↓</option>
+            </select>
+          </div>
+          <div>
+            <label class="fl">Estado</label>
+            <select class="fi" id="edit-status">
+              <option value="todo" ${c.status==='todo'?'selected':''}>To Do</option>
+              <option value="in_progress" ${c.status==='in_progress'?'selected':''}>En progreso</option>
+              <option value="blocked" ${c.status==='blocked'?'selected':''}>Bloqueada</option>
+              <option value="done" ${c.status==='done'?'selected':''}>Listo</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="frow" style="margin-bottom:1rem;">
-        <div class="fg" style="margin-bottom:0;">
-          <label class="fl">Prioridad</label>
-          <select class="fi" id="edit-priority">
-            <option value="high" ${c.priority==='high'?'selected':''}>Alta ↑</option>
-            <option value="medium" ${c.priority==='medium'?'selected':''}>Media →</option>
-            <option value="low" ${c.priority==='low'?'selected':''}>Baja ↓</option>
-          </select>
+        <div id="block-reason-wrap" style="${c.status==='blocked'?'':'display:none;'}margin-bottom:.875rem;">
+          <label class="fl">Razón del bloqueo</label>
+          <input type="text" class="fi" id="edit-block-reason" placeholder="¿Por qué está bloqueada?" value="${esc(c.blockedReason||'')}">
         </div>
-        <div class="fg" style="margin-bottom:0;display:flex;align-items:flex-end;">
-          <button class="btn btn-ok" style="width:100%;" onclick="saveEdits('${c.id}')">Guardar cambios</button>
+        <div style="margin-bottom:.875rem;">
+          <label class="fl">Reprogramar — razón del cambio</label>
+          <input type="text" class="fi" id="reschedule-reason" placeholder="Ej: cliente pidió más tiempo (opcional)">
+          ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:3px;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}${c.rescheduleHistory.slice(-1).map(r=>` · Última: ${r.reason}`).join('')}</div>`:''}
         </div>
+        <button class="btn btn-a" style="width:100%;" onclick="applyAllChanges('${c.id}')">Aplicar cambios</button>
       </div>
  
       <div class="modal-section">
@@ -989,42 +1008,14 @@ function renderTaskModal(c){
         <p style="font-size:13px;color:var(--text2);line-height:1.6;">${esc(c.description)}</p>
       </div>
       ${c.meetingTitle?`<div class="modal-section"><div class="modal-section-title">Reunión de origen</div><p style="font-size:12px;color:var(--text2);">📝 ${esc(c.meetingTitle)}</p></div>`:''}
-      ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason" style="margin-bottom:1rem;">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
- 
-      <!-- Estado -->
-      <div class="modal-section">
-        <div class="modal-section-title">Cambiar estado</div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;">
-          ${['todo','in_progress','blocked','done'].map(st=>`<button class="btn btn-sm ${c.status===st?'btn-a':''}" onclick="changeStatus('${c.id}','${st}')">${slbl(st)}</button>`).join('')}
-        </div>
-      </div>
- 
-      <!-- Razón bloqueo -->
-      ${c.status==='blocked'?`<div class="modal-section">
-        <div class="modal-section-title">Razón del bloqueo</div>
-        <div style="display:flex;gap:8px;">
-          <input type="text" class="fi" id="block-reason" placeholder="¿Por qué está bloqueada?" value="${esc(c.blockedReason||'')}">
-          <button class="btn btn-sm" onclick="saveBlockReason('${c.id}')">Guardar</button>
-        </div>
-      </div>`:''}
- 
-      <!-- Reprogramar -->
-      <div class="modal-section">
-        <div class="modal-section-title">Reprogramar con razón</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="date" class="fi" id="new-date" value="${esc(c.dueDate||'')}">
-          <input type="text" class="fi" id="reschedule-reason" placeholder="Razón (ej: cliente pidió más tiempo)">
-          <button class="btn btn-sm" onclick="reschedule('${c.id}')">Reprogramar</button>
-        </div>
-        ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:.5rem;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}${c.rescheduleHistory.slice(-1).map(r=>` · Última razón: ${r.reason}`).join('')}</div>`:''}
-      </div>
+      ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
  
       <!-- Comentarios -->
       <div class="modal-section">
         <div class="modal-section-title">Comentarios (${(c.comments||[]).length})</div>
         ${(c.comments||[]).map(cm=>`<div class="comment-item"><div class="comment-author">${esc(cm.author)} · ${fmtTs(cm.ts)}</div><div class="comment-text">${esc(cm.text)}</div></div>`).join('')}
         <div style="display:flex;gap:8px;margin-top:.625rem;">
-          <input type="text" class="fi" id="new-comment" placeholder="Agregar comentario...">
+          <input type="text" class="fi" id="new-comment" placeholder="Agregar comentario..." onkeydown="if(event.key==='Enter')addComment('${c.id}')">
           <button class="btn btn-sm btn-ok" onclick="addComment('${c.id}')">Comentar</button>
         </div>
       </div>
@@ -1040,7 +1031,13 @@ function renderTaskModal(c){
     </div>
     <div class="modal-footer">
       <button class="btn btn-sm" onclick="closeModal('task-modal')">Cerrar</button>
-    </div>`;
+    </div>
+    <script>
+      // Show/hide block reason based on status select
+      document.getElementById('edit-status')?.addEventListener('change', function(){
+        document.getElementById('block-reason-wrap').style.display = this.value==='blocked' ? '' : 'none';
+      });
+    </script>`;
 }
  
 // ════════════════════════════════════════
@@ -1073,18 +1070,33 @@ function render(){
 // ════════════════════════════════════════
 //  TASK ACTIONS
 // ════════════════════════════════════════
-async function saveEdits(id){
+async function applyAllChanges(id){
   const c=S.cards.find(x=>x.id===id);if(!c)return;
   const newAssignee=document.getElementById('edit-assignee')?.value?.trim();
-  const newDueDate=document.getElementById('edit-duedate')?.value;
+  const newDueDate=document.getElementById('edit-duedate')?.value||null;
   const newPriority=document.getElementById('edit-priority')?.value;
+  const newStatus=document.getElementById('edit-status')?.value;
+  const newBlockReason=document.getElementById('edit-block-reason')?.value?.trim();
+  const rescheduleReason=document.getElementById('reschedule-reason')?.value?.trim();
   const changes=[];
+ 
   if(newAssignee&&newAssignee!==c.assignee){changes.push(`Responsable: ${c.assignee} → ${newAssignee}`);c.assignee=newAssignee;}
-  if(newDueDate!==c.dueDate){changes.push(`Fecha: ${c.dueDate?fmtDate(c.dueDate):'sin fecha'} → ${newDueDate?fmtDate(newDueDate):'sin fecha'}`);c.dueDate=newDueDate||null;}
   if(newPriority&&newPriority!==c.priority){changes.push(`Prioridad: ${pmMap[c.priority]} → ${pmMap[newPriority]}`);c.priority=newPriority;}
+  if(newStatus&&newStatus!==c.status){changes.push(`Estado: ${slbl(c.status)} → ${slbl(newStatus)}`);c.status=newStatus;}
+  if(newStatus==='blocked'&&newBlockReason&&newBlockReason!==c.blockedReason){
+    changes.push(`Razón bloqueo: ${newBlockReason}`);
+    c.blockedReason=newBlockReason;c.blockedAt=new Date().toISOString();
+  }
+  if(newStatus!=='blocked'){c.blockedReason=null;c.blockedAt=null;}
+  if(newDueDate!==c.dueDate){
+    const reason=rescheduleReason||'Sin razón especificada';
+    if(c.dueDate) c.rescheduleHistory=[...(c.rescheduleHistory||[]),{from:c.dueDate,to:newDueDate,reason,ts:new Date().toISOString()}];
+    changes.push(`Fecha: ${c.dueDate?fmtDate(c.dueDate):'sin fecha'} → ${newDueDate?fmtDate(newDueDate):'sin fecha'}${rescheduleReason?' ('+rescheduleReason+')':''}`);
+    c.dueDate=newDueDate;
+  }
   if(changes.length>0){
     c.activityLog=c.activityLog||[];
-    c.activityLog.push({type:'edit',text:`Editada: ${changes.join(' · ')}`,ts:new Date().toISOString()});
+    c.activityLog.push({type:'edit',text:`Cambios: ${changes.join(' · ')}`,ts:new Date().toISOString()});
     await saveDrive();
     document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
     render();
