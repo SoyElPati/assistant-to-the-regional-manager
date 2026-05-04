@@ -434,6 +434,11 @@ function sampleData(){
 //  HELPERS
 // ════════════════════════════════════════
 const me=()=>currentUser?.given_name||currentUser?.email||'Vos';
+// Match "Vos" or the user's real name as "mine"
+function isMyTask(c){
+  const a=(c.assignee||'').toLowerCase();
+  return a==='vos'||a===(currentUser?.given_name||'').toLowerCase()||a===(currentUser?.email||'').toLowerCase();
+}
 function fmtDate(d){
   if(!d)return'';
   const dt=new Date(d+'T12:00:00'),td=new Date();td.setHours(0,0,0,0);
@@ -745,22 +750,24 @@ function vClientDetail(clientName){
   const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
   const blocked=active.filter(c=>c.status==='blocked');
   const risks=getRisks(clientName);
-  const statuses=[
-    {key:'in_progress',label:'En progreso'},
-    {key:'todo',label:'To Do'},
-    {key:'blocked',label:'Bloqueadas'},
-    {key:'done',label:'Listo'},
-  ];
- 
-  let filtered=allCards;
-  if(S.filterAssignee!=='all') filtered=filtered.filter(c=>c.assignee===S.filterAssignee);
- 
   const assignees=[...new Set(allCards.map(c=>c.assignee))];
   const soon=active.filter(c=>{
     if(!c.dueDate)return false;
     const diff=Math.ceil((new Date(c.dueDate+'T12:00:00')-td)/86400000);
     return diff>=0&&diff<=5;
   }).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+ 
+  // Apply filter — "mine" matches "Vos" or real name
+  let filtered=allCards;
+  if(S.filterAssignee==='__mine__') filtered=allCards.filter(c=>isMyTask(c));
+  else if(S.filterAssignee!=='all') filtered=allCards.filter(c=>c.assignee===S.filterAssignee);
+ 
+  const cols=[
+    {key:'in_progress',label:'En progreso',cls:'color:var(--info)'},
+    {key:'todo',label:'To Do',cls:''},
+    {key:'blocked',label:'Bloqueadas',cls:'color:var(--blocked)'},
+    {key:'done',label:'Listo',cls:'color:var(--success)'},
+  ];
  
   return`
     <div class="back-btn" onclick="S.subView=null;S.selectedClient=null;S.filterAssignee='all';render()">← Volver a clientes</div>
@@ -781,24 +788,43 @@ function vClientDetail(clientName){
     <div class="filters" style="margin-bottom:1.25rem;">
       <div class="toggle-group">
         <button class="toggle-btn ${S.filterAssignee==='all'?'active':''}" onclick="S.filterAssignee='all';render()">Todas</button>
-        <button class="toggle-btn" onclick="S.filterAssignee='${esc(me())}';render()">Mis tareas</button>
+        <button class="toggle-btn ${S.filterAssignee==='__mine__'?'active':''}" onclick="S.filterAssignee='__mine__';render()">Mis tareas</button>
       </div>
       <select class="fi" onchange="S.filterAssignee=this.value;render()">
-        <option value="all">Por responsable</option>
+        <option value="all" ${S.filterAssignee==='all'?'selected':''}>Por responsable</option>
         ${assignees.map(a=>`<option value="${esc(a)}" ${S.filterAssignee===a?'selected':''}>${esc(a)}</option>`).join('')}
       </select>
     </div>
-    ${statuses.map(st=>{
-      const stCards=filtered.filter(c=>c.status===st.key);
-      if(stCards.length===0)return'';
-      return`<div style="margin-bottom:1.5rem;">
-        <div class="shdr">
-          <h3 style="${st.key==='blocked'?'color:var(--blocked)':''}">${st.label} (${stCards.length})</h3>
-        </div>
-        ${stCards.sort((a,b)=>{if(!a.dueDate)return 1;if(!b.dueDate)return-1;return new Date(a.dueDate)-new Date(b.dueDate);}).map(c=>tcFull(c,false)).join('')}
-      </div>`;
-    }).join('')}
-    ${filtered.length===0?'<div class="empty"><p>Sin tareas con este filtro.</p></div>':''}`;
+    <div class="kanban">
+      ${cols.map(col=>{
+        const colCards=filtered.filter(c=>c.status===col.key).sort((a,b)=>{
+          if(!a.dueDate)return 1;if(!b.dueDate)return-1;
+          return new Date(a.dueDate)-new Date(b.dueDate);
+        });
+        return`<div class="kb-col">
+          <div class="kb-col-header">
+            <span class="kb-col-title" style="${col.cls}">${col.label}</span>
+            <span class="kb-count">${colCards.length}</span>
+          </div>
+          ${colCards.map(c=>{
+            const ov=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td;
+            return`<div class="kb-card ${c.status==='blocked'?'kb-blocked':ov?'kb-overdue':''}" onclick="openTask('${c.id}')">
+              <div class="kb-card-title">${esc(c.title)}</div>
+              <div class="kb-card-meta" style="margin-top:5px;">
+                <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]||c.priority}</span>
+                ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+              </div>
+              <div class="kb-card-meta" style="margin-top:4px;">
+                <span class="chip" style="font-size:10px;">👤 ${esc(c.assignee)}</span>
+                ${c.status==='blocked'&&c.blockedReason?`<span style="font-size:10px;color:var(--blocked);">◉ ${esc(c.blockedReason.substring(0,30))}${c.blockedReason.length>30?'...':''}</span>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+          ${colCards.length===0?`<div style="text-align:center;padding:1.5rem .5rem;color:var(--text3);font-size:12px;">Sin tareas</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    ${filtered.length===0?'<div class="empty" style="margin-top:1rem;"><p>Sin tareas con este filtro.</p></div>':''}`;
 }
  
 // ── INBOX ──
