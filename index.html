@@ -611,7 +611,8 @@ function vDashboard(){
 // ── TASKS ──
 function vTasks(){
   const td=new Date();td.setHours(0,0,0,0);
-  let fl=S.cards;
+  // Mis tareas = solo las asignadas a mí (incluyendo "Vos")
+  let fl=S.cards.filter(c=>isMyTask(c));
   if(S.filterClient!=='all') fl=fl.filter(c=>c.client===S.filterClient);
   if(S.filterStatus!=='all') fl=fl.filter(c=>c.status===S.filterStatus);
   const srt=[...fl].sort((a,b)=>{
@@ -957,18 +958,41 @@ function renderTaskModal(c){
       <button class="btn btn-sm" onclick="closeModal('task-modal')" style="flex-shrink:0;">✕</button>
     </div>
     <div class="modal-body">
+ 
+      <!-- Editable fields -->
+      <div class="frow" style="margin-bottom:1rem;">
+        <div class="fg" style="margin-bottom:0;">
+          <label class="fl">Responsable</label>
+          <input type="text" class="fi" id="edit-assignee" value="${esc(c.assignee||'')}" placeholder="Nombre del responsable">
+        </div>
+        <div class="fg" style="margin-bottom:0;">
+          <label class="fl">Fecha de vencimiento</label>
+          <input type="date" class="fi" id="edit-duedate" value="${esc(c.dueDate||'')}">
+          ${c.dueDate?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:'<div style="font-size:11px;color:var(--text3);margin-top:3px;">Sin fecha asignada</div>'}
+        </div>
+      </div>
+      <div class="frow" style="margin-bottom:1rem;">
+        <div class="fg" style="margin-bottom:0;">
+          <label class="fl">Prioridad</label>
+          <select class="fi" id="edit-priority">
+            <option value="high" ${c.priority==='high'?'selected':''}>Alta ↑</option>
+            <option value="medium" ${c.priority==='medium'?'selected':''}>Media →</option>
+            <option value="low" ${c.priority==='low'?'selected':''}>Baja ↓</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:0;display:flex;align-items:flex-end;">
+          <button class="btn btn-ok" style="width:100%;" onclick="saveEdits('${c.id}')">Guardar cambios</button>
+        </div>
+      </div>
+ 
       <div class="modal-section">
         <div class="modal-section-title">Descripción</div>
         <p style="font-size:13px;color:var(--text2);line-height:1.6;">${esc(c.description)}</p>
       </div>
-      ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason" style="margin-bottom:1.25rem;">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
-      <div class="frow" style="margin-bottom:1.25rem;">
-        <div><div class="modal-section-title">Responsable</div><p style="font-size:13px;">👤 ${esc(c.assignee)}</p></div>
-        <div><div class="modal-section-title">Fecha de vencimiento</div><p style="font-size:13px;" class="${dcls(c.dueDate)}">${c.dueDate?fmtDate(c.dueDate):'Sin fecha'}</p></div>
-      </div>
       ${c.meetingTitle?`<div class="modal-section"><div class="modal-section-title">Reunión de origen</div><p style="font-size:12px;color:var(--text2);">📝 ${esc(c.meetingTitle)}</p></div>`:''}
+      ${c.status==='blocked'&&c.blockedReason?`<div class="blocked-reason" style="margin-bottom:1rem;">◉ Bloqueada: ${esc(c.blockedReason)}</div>`:''}
  
-      <!-- Actions -->
+      <!-- Estado -->
       <div class="modal-section">
         <div class="modal-section-title">Cambiar estado</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;">
@@ -976,7 +1000,7 @@ function renderTaskModal(c){
         </div>
       </div>
  
-      <!-- Block reason -->
+      <!-- Razón bloqueo -->
       ${c.status==='blocked'?`<div class="modal-section">
         <div class="modal-section-title">Razón del bloqueo</div>
         <div style="display:flex;gap:8px;">
@@ -985,18 +1009,18 @@ function renderTaskModal(c){
         </div>
       </div>`:''}
  
-      <!-- Reschedule -->
+      <!-- Reprogramar -->
       <div class="modal-section">
-        <div class="modal-section-title">Reprogramar</div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="modal-section-title">Reprogramar con razón</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <input type="date" class="fi" id="new-date" value="${esc(c.dueDate||'')}">
-          <input type="text" class="fi" id="reschedule-reason" placeholder="Razón (opcional)">
+          <input type="text" class="fi" id="reschedule-reason" placeholder="Razón (ej: cliente pidió más tiempo)">
           <button class="btn btn-sm" onclick="reschedule('${c.id}')">Reprogramar</button>
         </div>
-        ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:.625rem;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}</div>`:''}
+        ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:.5rem;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}${c.rescheduleHistory.slice(-1).map(r=>` · Última razón: ${r.reason}`).join('')}</div>`:''}
       </div>
  
-      <!-- Comments -->
+      <!-- Comentarios -->
       <div class="modal-section">
         <div class="modal-section-title">Comentarios (${(c.comments||[]).length})</div>
         ${(c.comments||[]).map(cm=>`<div class="comment-item"><div class="comment-author">${esc(cm.author)} · ${fmtTs(cm.ts)}</div><div class="comment-text">${esc(cm.text)}</div></div>`).join('')}
@@ -1006,7 +1030,7 @@ function renderTaskModal(c){
         </div>
       </div>
  
-      <!-- Activity log -->
+      <!-- Historial -->
       ${activity.length>0?`<div class="modal-section">
         <div class="modal-section-title">Historial</div>
         ${activity.slice(0,8).map(a=>`<div class="activity-item">
@@ -1050,7 +1074,25 @@ function render(){
 // ════════════════════════════════════════
 //  TASK ACTIONS
 // ════════════════════════════════════════
-async function changeStatus(id,status){
+async function saveEdits(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const newAssignee=document.getElementById('edit-assignee')?.value?.trim();
+  const newDueDate=document.getElementById('edit-duedate')?.value;
+  const newPriority=document.getElementById('edit-priority')?.value;
+  const changes=[];
+  if(newAssignee&&newAssignee!==c.assignee){changes.push(`Responsable: ${c.assignee} → ${newAssignee}`);c.assignee=newAssignee;}
+  if(newDueDate!==c.dueDate){changes.push(`Fecha: ${c.dueDate?fmtDate(c.dueDate):'sin fecha'} → ${newDueDate?fmtDate(newDueDate):'sin fecha'}`);c.dueDate=newDueDate||null;}
+  if(newPriority&&newPriority!==c.priority){changes.push(`Prioridad: ${pmMap[c.priority]} → ${pmMap[newPriority]}`);c.priority=newPriority;}
+  if(changes.length>0){
+    c.activityLog=c.activityLog||[];
+    c.activityLog.push({type:'edit',text:`Editada: ${changes.join(' · ')}`,ts:new Date().toISOString()});
+    await saveDrive();
+    document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+    render();
+  }
+}
+ 
+ 
   const c=S.cards.find(x=>x.id===id);if(!c)return;
   const prev=c.status;
   c.status=status;
@@ -1104,7 +1146,9 @@ async function addComment(id){
  
 async function approveCard(id){
   const c=S.proposed.find(x=>x.id===id);if(!c)return;
-  const ap={...c,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null};
+  const realName=me();
+  const assignee=(c.assignee||'').toLowerCase()==='vos'?realName:c.assignee;
+  const ap={...c,assignee,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null};
   S.cards=[...S.cards,ap];
   S.proposed=S.proposed.filter(x=>x.id!==id);
   if(!S.clients.includes(ap.client))S.clients=[...S.clients,ap.client];
@@ -1112,7 +1156,11 @@ async function approveCard(id){
 }
 async function rejectCard(id){S.proposed=S.proposed.filter(x=>x.id!==id);await saveDrive();render();}
 async function approveAll(){
-  const ap=S.proposed.map(c=>({...c,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null}));
+  const realName=me();
+  const ap=S.proposed.map(c=>{
+    const assignee=(c.assignee||'').toLowerCase()==='vos'?realName:c.assignee;
+    return{...c,assignee,status:'todo',comments:[],activityLog:[{type:'created',text:'Card aprobada desde inbox',ts:new Date().toISOString()}],rescheduleHistory:[],blockedReason:null,blockedAt:null};
+  });
   S.cards=[...S.cards,...ap];
   ap.forEach(c=>{if(!S.clients.includes(c.client))S.clients.push(c.client);});
   S.proposed=[];
