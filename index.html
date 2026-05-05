@@ -939,6 +939,10 @@ function openTask(id){
   if(!c)return;
   const modal=document.getElementById('task-modal-content');
   modal.innerHTML=renderTaskModal(c);
+  // Show/hide block reason when status changes
+  document.getElementById('edit-status')?.addEventListener('change',function(){
+    document.getElementById('block-reason-wrap').style.display=this.value==='blocked'?'':'none';
+  });
   openModal('task-modal');
 }
  
@@ -1031,13 +1035,7 @@ function renderTaskModal(c){
     </div>
     <div class="modal-footer">
       <button class="btn btn-sm" onclick="closeModal('task-modal')">Cerrar</button>
-    </div>
-    <script>
-      // Show/hide block reason based on status select
-      document.getElementById('edit-status')?.addEventListener('change', function(){
-        document.getElementById('block-reason-wrap').style.display = this.value==='blocked' ? '' : 'none';
-      });
-    </script>`;
+    </div>`;
 }
  
 // ════════════════════════════════════════
