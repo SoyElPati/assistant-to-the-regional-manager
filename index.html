@@ -160,8 +160,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .kb-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding-bottom:.625rem;border-bottom:.5px solid var(--border);}
 .kb-col-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);}
 .kb-count{font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;background:var(--surface2);color:var(--text3);}
-.kb-card{background:var(--surface2);border:.5px solid var(--border);border-radius:7px;padding:.75rem .875rem;margin-bottom:7px;cursor:pointer;transition:border-color .1s;}
+.kb-card{background:var(--surface2);border:.5px solid var(--border);border-radius:7px;padding:.75rem .875rem;margin-bottom:7px;cursor:grab;transition:border-color .1s,opacity .15s,transform .1s;}
 .kb-card:hover{border-color:var(--border3);}
+.kb-card.dragging{opacity:.4;cursor:grabbing;}
+.kb-col.drag-over{background:rgba(201,255,71,.04);border-color:rgba(201,255,71,.2);}
 .kb-card-title{font-size:12px;font-weight:500;margin-bottom:5px;line-height:1.4;}
 .kb-card-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .kb-blocked{border-left:2px solid var(--blocked);}
@@ -667,7 +669,7 @@ function vTasksKanban(cards){
   ];
   return`
     <div class="phdr">
-      <div><div class="ptitle">Mis tareas</div><div class="psub">Centro de ejecución personal</div></div>
+      <div><div class="ptitle">Mis tareas</div><div class="psub">Centro de ejecución personal · Arrastrá cards para cambiar estado</div></div>
       <div class="phdr-actions">
         <div class="toggle-group">
           <button class="toggle-btn ${S.tasksView==='list'?'active':''}" onclick="S.tasksView='list';render()">☰ Lista</button>
@@ -676,26 +678,38 @@ function vTasksKanban(cards){
         <button class="btn btn-a" onclick="go('notes')">✦ Procesar notas</button>
       </div>
     </div>
-    <div class="kanban">
+    <div class="kanban" id="kanban-board">
       ${cols.map(col=>{
         const colCards=cards.filter(c=>c.status===col.key).sort((a,b)=>{
           if(!a.dueDate)return 1;if(!b.dueDate)return-1;
           return new Date(a.dueDate)-new Date(b.dueDate);
         });
-        return`<div class="kb-col">
+        return`<div class="kb-col" data-status="${col.key}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="onDrop(event,'${col.key}')">
           <div class="kb-col-header">
             <span class="kb-col-title" style="${col.cls}">${col.label}</span>
             <span class="kb-count">${colCards.length}</span>
           </div>
           ${colCards.map(c=>{
             const td=new Date();td.setHours(0,0,0,0);
-            const ov=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td;
-            return`<div class="kb-card ${c.status==='blocked'?'kb-blocked':ov?'kb-overdue':''}" onclick="openTask('${c.id}')">
+            const ov=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td&&c.status!=='done';
+            const showDate=c.status==='done'?c.completedAt:c.dueDate;
+            return`<div class="kb-card ${c.status==='blocked'?'kb-blocked':ov?'kb-overdue':''}"
+              draggable="true"
+              data-id="${c.id}"
+              ondragstart="onDragStart(event,'${c.id}')"
+              ondragend="onDragEnd(event)"
+              onclick="openTask('${c.id}')">
               <div class="kb-card-title">${esc(c.title)}</div>
               <div class="kb-card-meta">
                 <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]||c.priority}</span>
-                ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+                ${showDate?`<span class="due ${c.status==='done'?'':dcls(c.dueDate)}">${c.status==='done'?'✓ '+fmtDate(showDate):fmtDate(showDate)}</span>`:''}
+              </div>
+              <div class="kb-card-meta" style="margin-top:4px;">
                 <span class="badge b-cl" style="font-size:10px;">${esc(c.client)}</span>
+                ${c.type==='visibility'?'<span style="font-size:10px;color:var(--text3);">👁</span>':''}
               </div>
             </div>`;
           }).join('')}
@@ -704,6 +718,7 @@ function vTasksKanban(cards){
       }).join('')}
     </div>`;
 }
+ 
  
 // ── CLIENTS ──
 function vClients(){
@@ -1137,7 +1152,7 @@ async function applyAllChanges(id){
     c.activityLog=c.activityLog||[];
     c.activityLog.push({type:'edit',text:`Cambios: ${changes.join(' · ')}`,ts:new Date().toISOString()});
     await saveDrive();
-    document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
+    closeModal('task-modal');
     render();
   }
 }
@@ -1286,6 +1301,43 @@ Devolvé SOLO un array JSON válido, sin texto adicional ni backticks. Cada obje
     await saveDrive();
   }catch(e){console.error(e);alert('Error al procesar. Verificá tu API Key.');}
   S.processing=false;render();
+}
+ 
+// ════════════════════════════════════════
+//  DRAG & DROP
+// ════════════════════════════════════════
+let dragId=null;
+ 
+function onDragStart(e,id){
+  dragId=id;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.classList.add('dragging'),0);
+}
+ 
+function onDragEnd(e){
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.kb-col').forEach(col=>col.classList.remove('drag-over'));
+}
+ 
+async function onDrop(e,newStatus){
+  e.preventDefault();
+  document.querySelectorAll('.kb-col').forEach(col=>col.classList.remove('drag-over'));
+  if(!dragId)return;
+  const c=S.cards.find(x=>x.id===dragId);
+  if(!c||c.status===newStatus){dragId=null;return;}
+  const prev=c.status;
+  c.status=newStatus;
+  if(newStatus==='done'){
+    c.completedAt=new Date().toISOString().split('T')[0];
+  } else {
+    c.completedAt=null;
+  }
+  if(newStatus!=='blocked'){c.blockedReason=null;c.blockedAt=null;}
+  c.activityLog=c.activityLog||[];
+  c.activityLog.push({type:'status',text:`Estado: ${slbl(prev)} → ${slbl(newStatus)} (arrastrado)`,ts:new Date().toISOString()});
+  dragId=null;
+  await saveDrive();
+  render();
 }
  
 // ════════════════════════════════════════
