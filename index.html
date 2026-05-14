@@ -1078,16 +1078,21 @@ function renderTaskModal(c){
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:.875rem;">Editar tarea</div>
         <div class="frow" style="margin-bottom:.875rem;">
           <div>
+            <label class="fl">Cliente</label>
+            <input type="text" class="fi" id="edit-client" value="${esc(c.client||'')}" list="modal-clients-list" placeholder="Cliente">
+            <datalist id="modal-clients-list">${S.clients.map(cl=>`<option value="${esc(cl)}">`).join('')}</datalist>
+          </div>
+          <div>
             <label class="fl">Responsable</label>
             <input type="text" class="fi" id="edit-assignee" value="${esc(c.assignee||'')}" placeholder="Nombre del responsable">
           </div>
+        </div>
+        <div class="frow" style="margin-bottom:.875rem;">
           <div>
             <label class="fl">Fecha de vencimiento</label>
             <input type="date" class="fi" id="edit-duedate" value="${esc(c.dueDate||'')}">
             ${c.dueDate&&c.status!=='done'?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:''}
           </div>
-        </div>
-        <div class="frow" style="margin-bottom:.875rem;">
           <div>
             <label class="fl">Prioridad</label>
             <select class="fi" id="edit-priority">
@@ -1096,6 +1101,7 @@ function renderTaskModal(c){
               <option value="low" ${c.priority==='low'?'selected':''}>Baja ↓</option>
             </select>
           </div>
+        </div>
           <div>
             <label class="fl">Estado</label>
             <select class="fi" id="edit-status">
@@ -1181,6 +1187,7 @@ function render(){
 // ════════════════════════════════════════
 async function applyAllChanges(id){
   const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const newClient=document.getElementById('edit-client')?.value?.trim();
   const newAssignee=document.getElementById('edit-assignee')?.value?.trim();
   const newDueDate=document.getElementById('edit-duedate')?.value||null;
   const newPriority=document.getElementById('edit-priority')?.value;
@@ -1189,6 +1196,11 @@ async function applyAllChanges(id){
   const rescheduleReason=document.getElementById('reschedule-reason')?.value?.trim();
   const changes=[];
  
+  if(newClient&&newClient!==c.client){
+    changes.push(`Cliente: ${c.client} → ${newClient}`);
+    c.client=newClient;
+    if(!S.clients.includes(newClient)) S.clients=[...S.clients,newClient];
+  }
   if(newAssignee&&newAssignee!==c.assignee){changes.push(`Responsable: ${c.assignee} → ${newAssignee}`);c.assignee=newAssignee;}
   if(newPriority&&newPriority!==c.priority){changes.push(`Prioridad: ${pmMap[c.priority]} → ${pmMap[newPriority]}`);c.priority=newPriority;}
   if(newStatus&&newStatus!==c.status){
