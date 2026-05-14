@@ -372,6 +372,7 @@ async function loadDrive(){
     S.cards=migrateCards(data.cards||[]);
     S.clients=data.clients||[];
     S.proposed=data.proposed||[];
+    S.archivedClients=data.archivedClients||[];
   }else{
     S.cards=sampleData();
     S.clients=[...new Set(S.cards.map(c=>c.client))];
@@ -379,7 +380,7 @@ async function loadDrive(){
   }
 }
 async function saveDrive(){
-  const body=JSON.stringify({cards:S.cards,clients:S.clients,proposed:S.proposed});
+  const body=JSON.stringify({cards:S.cards,clients:S.clients,proposed:S.proposed,archivedClients:S.archivedClients||[]});
   if(driveFileId){
     await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,{
       method:'PATCH',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body,
@@ -530,7 +531,7 @@ function generateWeeklySummary(){
 function renderSidebar(){
   const td=new Date();td.setHours(0,0,0,0);
   const pc=S.proposed.length;
-  const oc=S.cards.filter(c=>c.status!=='done'&&c.dueDate&&new Date(c.dueDate+'T12:00:00')<td).length;
+  const oc=S.cards.filter(c=>isMyTask(c)&&c.status!=='done'&&c.dueDate&&new Date(c.dueDate+'T12:00:00')<td).length;
   const ini=(currentUser?.given_name?.[0]||'')+(currentUser?.family_name?.[0]||'');
   document.getElementById('sidebar').innerHTML=`
     <div class="sb-head">
@@ -685,8 +686,8 @@ function vTasksKanban(cards){
           return new Date(a.dueDate)-new Date(b.dueDate);
         });
         return`<div class="kb-col" data-status="${col.key}"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
+          ondragover="onDragOver(event,'${col.key}')"
+          ondragleave="onDragLeave(event)"
           ondrop="onDrop(event,'${col.key}')">
           <div class="kb-col-header">
             <span class="kb-col-title" style="${col.cls}">${col.label}</span>
@@ -723,42 +724,101 @@ function vTasksKanban(cards){
 // ── CLIENTS ──
 function vClients(){
   if(S.subView==='client-detail'&&S.selectedClient) return vClientDetail(S.selectedClient);
+  const archived=S.archivedClients||[];
+  const visible=S.clients.filter(cl=>!archived.includes(cl));
+  const showArchived=S.showArchivedClients||false;
+  const displayList=showArchived?[...visible,...archived.map(cl=>({cl,isArchived:true}))]:visible;
+  const cv=S.clientsView||'cards';
+ 
+  const clientRow=(cl,isArchived=false)=>{
+    const h=calcHealth(cl);
+    const td=new Date();td.setHours(0,0,0,0);
+    const allCards=S.cards.filter(c=>c.client===cl);
+    const active=allCards.filter(c=>c.status!=='done');
+    const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
+    const blocked=active.filter(c=>c.status==='blocked');
+    const high=active.filter(c=>c.priority==='high');
+    const nextDeadline=active.filter(c=>c.dueDate).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
+ 
+    if(cv==='list'){
+      return`<div style="display:flex;align-items:center;gap:12px;padding:10px 1rem;border-bottom:.5px solid var(--border);cursor:pointer;opacity:${isArchived?.6:1};" onclick="${isArchived?'':` openClient('${esc(cl)}')`}">
+        <div style="flex:1;">
+          <span style="font-size:13px;font-weight:500;">${esc(cl)}</span>
+          ${isArchived?`<span style="font-size:10px;color:var(--text3);margin-left:6px;">archivado</span>`:''}
+        </div>
+        <span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>
+        <span style="font-size:12px;color:var(--text2);width:70px;text-align:center;">${active.length} activas</span>
+        <span style="font-size:12px;width:70px;text-align:center;${overdue.length>0?'color:var(--danger)':''}">${overdue.length} vencidas</span>
+        <span style="font-size:12px;width:80px;text-align:center;color:var(--text3);">${nextDeadline?fmtDate(nextDeadline.dueDate):'—'}</span>
+        <div style="display:flex;gap:5px;" onclick="event.stopPropagation()">
+          ${isArchived
+            ?`<button class="btn btn-xs" onclick="unarchiveClient('${esc(cl)}')">Restaurar</button>`
+            :`<button class="btn btn-xs" onclick="openClient('${esc(cl)}')">Ver →</button>
+              <button class="btn btn-xs" onclick="archiveClient('${esc(cl)}')" style="color:var(--text3)">Archivar</button>`
+          }
+          <button class="btn btn-xs btn-x" onclick="deleteClient('${esc(cl)}')">Eliminar</button>
+        </div>
+      </div>`;
+    }
+ 
+    return`<div class="client-card ${isArchived?'':h}" style="opacity:${isArchived?.6:1};" onclick="${isArchived?'':` openClient('${esc(cl)}')`}">
+      <div class="cc-top">
+        <div class="cc-name">${esc(cl)}${isArchived?`<span style="font-size:10px;color:var(--text3);margin-left:6px;font-weight:400;">archivado</span>`:''}</div>
+        ${!isArchived?`<span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>`:''}
+      </div>
+      <div class="cc-metrics">
+        <div class="cc-metric"><div class="cc-metric-val">${active.length}</div><div class="cc-metric-lbl">Activas</div></div>
+        <div class="cc-metric"><div class="cc-metric-val" style="${overdue.length>0?'color:var(--danger)':''}">${overdue.length}</div><div class="cc-metric-lbl">Vencidas</div></div>
+        <div class="cc-metric"><div class="cc-metric-val" style="${blocked.length>0?'color:var(--blocked)':''}">${blocked.length}</div><div class="cc-metric-lbl">Bloqueadas</div></div>
+      </div>
+      ${high.length>0&&!isArchived?`<div class="cc-meta"><span class="badge b-high">↑ ${high.length} alta prioridad</span></div>`:''}
+      <div class="cc-footer" onclick="event.stopPropagation()">
+        <div class="cc-deadline">${nextDeadline&&!isArchived?`Próximo: <span>${fmtDate(nextDeadline.dueDate)}</span>`:'—'}</div>
+        <div style="display:flex;gap:5px;">
+          ${isArchived
+            ?`<button class="btn btn-xs" onclick="unarchiveClient('${esc(cl)}')">Restaurar</button>`
+            :`<button class="btn btn-xs" onclick="archiveClient('${esc(cl)}')" style="color:var(--text3);">Archivar</button>`
+          }
+          <button class="btn btn-xs btn-x" onclick="deleteClient('${esc(cl)}')">Eliminar</button>
+        </div>
+      </div>
+    </div>`;
+  };
+ 
   return`
     <div class="phdr">
       <div><div class="ptitle">Clientes</div><div class="psub">Visibilidad y control operativo cross-team</div></div>
+      <div class="phdr-actions">
+        <div class="toggle-group">
+          <button class="toggle-btn ${cv==='cards'?'active':''}" onclick="S.clientsView='cards';render()">⊞ Cards</button>
+          <button class="toggle-btn ${cv==='list'?'active':''}" onclick="S.clientsView='list';render()">☰ Lista</button>
+        </div>
+        <button class="btn btn-sm" onclick="S.showArchivedClients=!S.showArchivedClients;render()" style="color:var(--text3);">
+          ${showArchived?'Ocultar archivados':'Ver archivados'} ${archived.length>0?`(${archived.length})`:''}
+        </button>
+      </div>
     </div>
-    ${S.clients.length===0?'<div class="empty"><p>Sin clientes aún. Procesá notas para crear tasks.</p></div>':''}
-    <div class="client-grid">
-      ${S.clients.map(cl=>{
-        const h=calcHealth(cl);
-        const td=new Date();td.setHours(0,0,0,0);
-        const allCards=S.cards.filter(c=>c.client===cl);
-        const active=allCards.filter(c=>c.status!=='done');
-        const overdue=active.filter(c=>c.dueDate&&new Date(c.dueDate+'T12:00:00')<td);
-        const blocked=active.filter(c=>c.status==='blocked');
-        const high=active.filter(c=>c.priority==='high');
-        const nextDeadline=active.filter(c=>c.dueDate).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
-        return`<div class="client-card ${h}" onclick="openClient('${esc(cl)}')">
-          <div class="cc-top">
-            <div class="cc-name">${esc(cl)}</div>
-            <span class="health h-${h}">${h==='healthy'?'Healthy':h==='watch'?'Watch':'Risk'}</span>
-          </div>
-          <div class="cc-metrics">
-            <div class="cc-metric"><div class="cc-metric-val">${active.length}</div><div class="cc-metric-lbl">Activas</div></div>
-            <div class="cc-metric"><div class="cc-metric-val" style="${overdue.length>0?'color:var(--danger)':''}">${overdue.length}</div><div class="cc-metric-lbl">Vencidas</div></div>
-            <div class="cc-metric"><div class="cc-metric-val" style="${blocked.length>0?'color:var(--blocked)':''}">${blocked.length}</div><div class="cc-metric-lbl">Bloqueadas</div></div>
-          </div>
-          <div class="cc-meta">
-            ${high.length>0?`<span class="badge b-high">↑ ${high.length} alta prioridad</span>`:''}
-          </div>
-          <div class="cc-footer">
-            <div class="cc-deadline">${nextDeadline?`Próximo: <span>${fmtDate(nextDeadline.dueDate)}</span>`:'Sin fechas próximas'}</div>
-            <button class="btn btn-sm">Ver detalle →</button>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
+    ${visible.length===0&&!showArchived?'<div class="empty"><p>Sin clientes activos. Procesá notas para crear tasks.</p></div>':''}
+    ${cv==='list'?`
+      <div style="background:var(--surface);border:.5px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div style="display:flex;gap:12px;padding:8px 1rem;border-bottom:.5px solid var(--border);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);">
+          <div style="flex:1;">Cliente</div>
+          <div style="width:70px;text-align:center;">Activas</div>
+          <div style="width:70px;text-align:center;">Vencidas</div>
+          <div style="width:80px;text-align:center;">Próximo</div>
+          <div style="width:180px;"></div>
+        </div>
+        ${visible.map(cl=>clientRow(cl,false)).join('')}
+        ${showArchived&&archived.length>0?archived.map(cl=>clientRow(cl,true)).join(''):''}
+      </div>
+    `:`
+      <div class="client-grid">
+        ${visible.map(cl=>clientRow(cl,false)).join('')}
+        ${showArchived&&archived.length>0?archived.map(cl=>clientRow(cl,true)).join(''):''}
+      </div>
+    `}`;
 }
+ 
  
 function vClientDetail(clientName){
   const td=new Date();td.setHours(0,0,0,0);
@@ -781,8 +841,8 @@ function vClientDetail(clientName){
   else if(S.filterAssignee!=='all') filtered=allCards.filter(c=>c.assignee===S.filterAssignee);
  
   const cols=[
-    {key:'in_progress',label:'En progreso',cls:'color:var(--info)'},
     {key:'todo',label:'To Do',cls:''},
+    {key:'in_progress',label:'En progreso',cls:'color:var(--info)'},
     {key:'blocked',label:'Bloqueadas',cls:'color:var(--blocked)'},
     {key:'done',label:'Terminada',cls:'color:var(--success)'},
   ];
@@ -1024,7 +1084,7 @@ function renderTaskModal(c){
           <div>
             <label class="fl">Fecha de vencimiento</label>
             <input type="date" class="fi" id="edit-duedate" value="${esc(c.dueDate||'')}">
-            ${c.dueDate?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:'<div style="font-size:11px;color:var(--text3);margin-top:3px;">Sin fecha asignada</div>'}
+            ${c.dueDate&&c.status!=='done'?`<div style="font-size:11px;margin-top:3px;" class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</div>`:''}
           </div>
         </div>
         <div class="frow" style="margin-bottom:.875rem;">
@@ -1055,7 +1115,6 @@ function renderTaskModal(c){
           <input type="text" class="fi" id="reschedule-reason" placeholder="Ej: cliente pidió más tiempo (opcional)">
           ${(c.rescheduleHistory||[]).length>0?`<div style="margin-top:3px;font-size:11px;color:var(--text3);">Reprogramada ${c.rescheduleHistory.length} vez${c.rescheduleHistory.length>1?'es':''}${c.rescheduleHistory.slice(-1).map(r=>` · Última: ${r.reason}`).join('')}</div>`:''}
         </div>
-        <button class="btn btn-a" style="width:100%;" onclick="applyAllChanges('${c.id}')">Aplicar cambios</button>
       </div>
  
       <div class="modal-section">
@@ -1085,6 +1144,7 @@ function renderTaskModal(c){
       </div>`:''}
     </div>
     <div class="modal-footer">
+      <button class="btn btn-a" style="flex:1;" onclick="applyAllChanges('${c.id}')">Aplicar cambios</button>
       <button class="btn btn-sm" onclick="closeModal('task-modal')">Cerrar</button>
     </div>`;
 }
@@ -1228,6 +1288,23 @@ function updateProp(id,field,value){
   }
 }
  
+async function archiveClient(name){
+  S.archivedClients=S.archivedClients||[];
+  if(!S.archivedClients.includes(name)) S.archivedClients.push(name);
+  await saveDrive();render();
+}
+async function unarchiveClient(name){
+  S.archivedClients=(S.archivedClients||[]).filter(c=>c!==name);
+  await saveDrive();render();
+}
+async function deleteClient(name){
+  if(!confirm(`¿Eliminás "${name}" y todas sus tasks? Esta acción no se puede deshacer.`))return;
+  S.clients=S.clients.filter(c=>c!==name);
+  S.archivedClients=(S.archivedClients||[]).filter(c=>c!==name);
+  S.cards=S.cards.filter(c=>c.client!==name);
+  await saveDrive();render();
+}
+ 
 async function approveCard(id){
   const c=S.proposed.find(x=>x.id===id);if(!c)return;
   const realName=me();
@@ -1276,7 +1353,7 @@ ${text}
 REGLAS ESTRICTAS:
 1. Solo generá una card si hay un COMPROMISO EXPLÍCITO: alguien dijo que va a hacer algo concreto. No interpretes ni sobreinferas.
 2. Cada card necesita un responsable claro mencionado en las notas. Si no hay responsable claro, usá "Por definir".
-3. Para el cliente: si el nombre del cliente aparece en el asunto de la reunión o en las notas, asignalo directamente. Si es una reunión interna donde se menciona un cliente de la lista de clientes conocidos, asignalo a ese cliente. Solo usá "Internos" si genuinamente no hay cliente identificable.
+3. Para el cliente: mirá el asunto de la reunión con atención. Si tiene formato "[ClienteA x ClienteB]", "ClienteA x Winclap" o "Winclap x ClienteA", el cliente es el que NO es Winclap. Si el nombre de un cliente conocido aparece en el asunto, asignalo. Si es reunión interna (1:1, interna, team, squad) y se menciona un cliente conocido en las notas, asignalo a ese cliente. Solo usá "Internos" si genuinamente no hay cliente identificable.
 4. Prioridad según impacto real:
    - Alta: entregable pendiente con el cliente, algo que desbloquea a otros, deadline inminente
    - Media: tarea operativa importante pero sin urgencia inmediata
@@ -1311,31 +1388,45 @@ let dragId=null;
 function onDragStart(e,id){
   dragId=id;
   e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>e.target.classList.add('dragging'),0);
+  e.dataTransfer.setData('text/plain',id);
+  requestAnimationFrame(()=>{
+    const el=document.querySelector(`[data-id="${id}"]`);
+    if(el) el.classList.add('dragging');
+  });
 }
  
 function onDragEnd(e){
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.kb-col').forEach(col=>col.classList.remove('drag-over'));
+  document.querySelectorAll('.kb-card').forEach(el=>el.classList.remove('dragging'));
+  document.querySelectorAll('.kb-col').forEach(el=>el.classList.remove('drag-over'));
+  dragId=null;
+}
+ 
+function onDragOver(e,status){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('.kb-col').forEach(el=>el.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+ 
+function onDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
 }
  
 async function onDrop(e,newStatus){
   e.preventDefault();
-  document.querySelectorAll('.kb-col').forEach(col=>col.classList.remove('drag-over'));
-  if(!dragId)return;
-  const c=S.cards.find(x=>x.id===dragId);
-  if(!c||c.status===newStatus){dragId=null;return;}
+  e.stopPropagation();
+  e.currentTarget.classList.remove('drag-over');
+  const id=e.dataTransfer.getData('text/plain')||dragId;
+  if(!id)return;
+  const c=S.cards.find(x=>x.id===id);
+  if(!c||c.status===newStatus)return;
   const prev=c.status;
   c.status=newStatus;
-  if(newStatus==='done'){
-    c.completedAt=new Date().toISOString().split('T')[0];
-  } else {
-    c.completedAt=null;
-  }
+  if(newStatus==='done'){c.completedAt=new Date().toISOString().split('T')[0];}
+  else{c.completedAt=null;}
   if(newStatus!=='blocked'){c.blockedReason=null;c.blockedAt=null;}
   c.activityLog=c.activityLog||[];
-  c.activityLog.push({type:'status',text:`Estado: ${slbl(prev)} → ${slbl(newStatus)} (arrastrado)`,ts:new Date().toISOString()});
-  dragId=null;
+  c.activityLog.push({type:'status',text:`${slbl(prev)} → ${slbl(newStatus)}`,ts:new Date().toISOString()});
   await saveDrive();
   render();
 }
