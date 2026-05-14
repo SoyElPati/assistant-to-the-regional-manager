@@ -458,7 +458,10 @@ function fmtTs(ts){
   const d=new Date(ts);
   return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
 }
-function slbl(s){return{todo:'To Do',in_progress:'En progreso',done:'Listo',blocked:'Bloqueada',pending_approval:'Por aprobar'}[s]||s;}
+function slbl(s){return{todo:'To Do',in_progress:'En progreso',blocked:'Bloqueada',done:'Terminada',pending_approval:'Por aprobar'}[s]||s;}
+// Returns display date: if done → completedAt, else dueDate
+function displayDate(c){return c.status==='done'?(c.completedAt||c.dueDate):c.dueDate;}
+function displayDateLabel(c){return c.status==='done'?'Completada':'';}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 const pmMap={high:'Alta ↑',medium:'Media →',low:'Baja ↓'};
 const pcMap={high:'b-high',medium:'b-med',low:'b-low'};
@@ -648,7 +651,7 @@ function vTasks(){
         <option value="todo" ${S.filterStatus==='todo'?'selected':''}>To Do</option>
         <option value="in_progress" ${S.filterStatus==='in_progress'?'selected':''}>En progreso</option>
         <option value="blocked" ${S.filterStatus==='blocked'?'selected':''}>Bloqueadas</option>
-        <option value="done" ${S.filterStatus==='done'?'selected':''}>Listo</option>
+        <option value="done" ${S.filterStatus==='done'?'selected':''}>Terminadas</option>
       </select>
       <span style="font-size:12px;color:var(--text2);margin-left:auto;">${srt.length} tarea${srt.length!==1?'s':''}</span>
     </div>
@@ -660,7 +663,7 @@ function vTasksKanban(cards){
     {key:'todo',label:'To Do',cls:''},
     {key:'in_progress',label:'En progreso',cls:''},
     {key:'blocked',label:'Bloqueadas',cls:'color:var(--blocked)'},
-    {key:'done',label:'Listo',cls:''},
+    {key:'done',label:'Terminada',cls:''},
   ];
   return`
     <div class="phdr">
@@ -766,7 +769,7 @@ function vClientDetail(clientName){
     {key:'in_progress',label:'En progreso',cls:'color:var(--info)'},
     {key:'todo',label:'To Do',cls:''},
     {key:'blocked',label:'Bloqueadas',cls:'color:var(--blocked)'},
-    {key:'done',label:'Listo',cls:'color:var(--success)'},
+    {key:'done',label:'Terminada',cls:'color:var(--success)'},
   ];
  
   return`
@@ -890,7 +893,11 @@ function tcMini(c){
  
 function tcFull(c,prop){
   const td=new Date();td.setHours(0,0,0,0);
-  const isOv=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td&&c.status!=='done';
+  const isOv=c.dueDate&&new Date(c.dueDate+'T12:00:00')<td&&c.status!=='done'&&c.status!=='blocked';
+  const showDate=c.status==='done'?c.completedAt:c.dueDate;
+  const dateCls=c.status==='done'?'':dcls(c.dueDate);
+  const dateLabel=c.status==='done'&&c.completedAt?`✓ ${fmtDate(c.completedAt)}`:showDate?fmtDate(showDate):'';
+  const typeLabel=c.type==='visibility'?'<span class="chip" style="font-size:10px;color:var(--text3);">👁 Visibilidad</span>':'';
   return`<div class="tc ${c.status==='blocked'?'blocked-card':isOv?'overdue-card':''}" onclick="openTask('${c.id}')">
     <div class="tc-top">
       <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
@@ -902,7 +909,8 @@ function tcFull(c,prop){
     <div class="tc-meta" style="margin-top:7px;">
       <span class="badge b-cl">${esc(c.client)}</span>
       <span class="chip">👤 ${esc(c.assignee)}</span>
-      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
+      ${dateLabel?`<span class="due ${dateCls}">${dateLabel}</span>`:''}
+      ${typeLabel}
       ${c.meetingTitle?`<span style="font-size:11px;color:var(--text3);font-style:italic;">📝 ${esc(c.meetingTitle)}</span>`:''}
       ${(c.comments||[]).length>0?`<span class="chip">💬 ${c.comments.length}</span>`:''}
     </div>
@@ -910,22 +918,50 @@ function tcFull(c,prop){
 }
  
 function tcProp(c){
-  return`<div class="tc prop">
-    <div class="tc-top">
-      <span class="badge ${pcMap[c.priority]||'b-low'}">${pmMap[c.priority]}</span>
-      <div class="tc-title">${esc(c.title)}</div>
-      <span class="badge b-pa">Por aprobar</span>
+  const knownClients=[...S.clients,'Internos'];
+  return`<div class="tc prop" id="prop-${c.id}">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.875rem;">
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--warning);margin-bottom:5px;">Por aprobar · ${esc(c.meetingTitle||'')}</div>
+        <input type="text" class="fi" value="${esc(c.title)}" onchange="updateProp('${c.id}','title',this.value)" style="font-size:14px;font-weight:500;margin-bottom:6px;">
+        <textarea class="fi" rows="2" onchange="updateProp('${c.id}','description',this.value)" style="font-size:12px;min-height:50px;">${esc(c.description)}</textarea>
+      </div>
     </div>
-    <div class="tc-desc">${esc(c.description)}</div>
-    <div class="tc-meta" style="margin-top:7px;">
-      <span class="badge b-cl">${esc(c.client)}</span>
-      <span class="chip">👤 ${esc(c.assignee)}</span>
-      ${c.dueDate?`<span class="due ${dcls(c.dueDate)}">${fmtDate(c.dueDate)}</span>`:''}
-      ${c.meetingTitle?`<span style="font-size:11px;color:var(--text3);font-style:italic;">📝 ${esc(c.meetingTitle)}</span>`:''}
+    <div class="frow" style="margin-bottom:.75rem;">
+      <div>
+        <label class="fl">Cliente</label>
+        <input type="text" class="fi" value="${esc(c.client)}" onchange="updateProp('${c.id}','client',this.value)" list="clients-list-${c.id}" placeholder="Cliente">
+        <datalist id="clients-list-${c.id}">${knownClients.map(cl=>`<option value="${esc(cl)}">`).join('')}</datalist>
+      </div>
+      <div>
+        <label class="fl">Responsable</label>
+        <input type="text" class="fi" value="${esc(c.assignee)}" onchange="updateProp('${c.id}','assignee',this.value)" placeholder="Nombre">
+      </div>
+    </div>
+    <div class="frow" style="margin-bottom:.75rem;">
+      <div>
+        <label class="fl">Prioridad</label>
+        <select class="fi" onchange="updateProp('${c.id}','priority',this.value)">
+          <option value="high" ${c.priority==='high'?'selected':''}>Alta ↑</option>
+          <option value="medium" ${c.priority==='medium'?'selected':''}>Media →</option>
+          <option value="low" ${c.priority==='low'?'selected':''}>Baja ↓</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Fecha de vencimiento</label>
+        <input type="date" class="fi" value="${esc(c.dueDate||'')}" onchange="updateProp('${c.id}','dueDate',this.value)">
+      </div>
+    </div>
+    <div style="margin-bottom:.75rem;">
+      <label class="fl">Tipo</label>
+      <div class="toggle-group" style="width:fit-content;">
+        <button class="toggle-btn ${(c.type||'action')==='action'?'active':''}" onclick="updateProp('${c.id}','type','action')">⚡ Acción</button>
+        <button class="toggle-btn ${c.type==='visibility'?'active':''}" onclick="updateProp('${c.id}','type','visibility')">👁 Visibilidad</button>
+      </div>
     </div>
     <div class="tc-acts">
-      <button class="btn btn-ok btn-sm" onclick="event.stopPropagation();approveCard('${c.id}')">✓ Aprobar</button>
-      <button class="btn btn-x btn-sm" onclick="event.stopPropagation();rejectCard('${c.id}')">✕ Rechazar</button>
+      <button class="btn btn-ok btn-sm" onclick="approveCard('${c.id}')">✓ Aprobar</button>
+      <button class="btn btn-x btn-sm" onclick="rejectCard('${c.id}')">✕ Rechazar</button>
     </div>
   </div>`;
 }
@@ -991,7 +1027,7 @@ function renderTaskModal(c){
               <option value="todo" ${c.status==='todo'?'selected':''}>To Do</option>
               <option value="in_progress" ${c.status==='in_progress'?'selected':''}>En progreso</option>
               <option value="blocked" ${c.status==='blocked'?'selected':''}>Bloqueada</option>
-              <option value="done" ${c.status==='done'?'selected':''}>Listo</option>
+              <option value="done" ${c.status==='done'?'selected':''}>Terminada</option>
             </select>
           </div>
         </div>
@@ -1080,7 +1116,12 @@ async function applyAllChanges(id){
  
   if(newAssignee&&newAssignee!==c.assignee){changes.push(`Responsable: ${c.assignee} → ${newAssignee}`);c.assignee=newAssignee;}
   if(newPriority&&newPriority!==c.priority){changes.push(`Prioridad: ${pmMap[c.priority]} → ${pmMap[newPriority]}`);c.priority=newPriority;}
-  if(newStatus&&newStatus!==c.status){changes.push(`Estado: ${slbl(c.status)} → ${slbl(newStatus)}`);c.status=newStatus;}
+  if(newStatus&&newStatus!==c.status){
+    changes.push(`Estado: ${slbl(c.status)} → ${slbl(newStatus)}`);
+    c.status=newStatus;
+    if(newStatus==='done'){c.completedAt=new Date().toISOString().split('T')[0];}
+    else{c.completedAt=null;}
+  }
   if(newStatus==='blocked'&&newBlockReason&&newBlockReason!==c.blockedReason){
     changes.push(`Razón bloqueo: ${newBlockReason}`);
     c.blockedReason=newBlockReason;c.blockedAt=new Date().toISOString();
@@ -1106,6 +1147,11 @@ async function changeStatus(id,status){
   const c=S.cards.find(x=>x.id===id);if(!c)return;
   const prev=c.status;
   c.status=status;
+  if(status==='done'){
+    c.completedAt=new Date().toISOString().split('T')[0];
+  } else {
+    c.completedAt=null;
+  }
   c.activityLog=c.activityLog||[];
   c.activityLog.push({type:'status',text:`Estado: ${slbl(prev)} → ${slbl(status)}`,ts:new Date().toISOString()});
   if(status!=='blocked'){c.blockedReason=null;c.blockedAt=null;}
@@ -1154,6 +1200,19 @@ async function addComment(id){
   document.getElementById('task-modal-content').innerHTML=renderTaskModal(c);
 }
  
+// Update a proposed card field inline without re-rendering
+function updateProp(id,field,value){
+  const c=S.proposed.find(x=>x.id===id);if(!c)return;
+  c[field]=value;
+  // Re-render just the toggle buttons if type changed
+  if(field==='type'){
+    const el=document.getElementById(`prop-${id}`);
+    if(el) el.querySelectorAll('.toggle-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.textContent.includes(value==='action'?'Acción':'Visibilidad'));
+    });
+  }
+}
+ 
 async function approveCard(id){
   const c=S.proposed.find(x=>x.id===id);if(!c)return;
   const realName=me();
@@ -1189,7 +1248,31 @@ async function processNotes(){
   S.processing=true;S.noteText=text;S.meetingTitle=title;render();
   try{
     const today=new Date().toISOString().split('T')[0];
-    const prompt=`Sos el asistente COO de Winclap, una agencia de growth marketing en LATAM. Extraé las tareas accionables de estas notas.\n\nReunión: ${title||'Sin título'}\nFecha de hoy: ${today}\n\nNotas:\n${text}\n\nDevolvé SOLO un array JSON válido, sin texto adicional ni backticks. Cada objeto:\n{"title":"título corto en español máx 8 palabras","description":"qué hacer exactamente 1-2 oraciones","client":"nombre del cliente o Interno","assignee":"nombre o Vos si no está claro","dueDate":"YYYY-MM-DD estimado (urgente=2-3d normal=5-7d)","priority":"high|medium|low","tags":["tag"]}`;
+    const existingClients=S.clients.filter(c=>c!=='Internos').join(', ')||'ninguno aún';
+    const prompt=`Sos el asistente COO de Winclap, una agencia de growth marketing en LATAM. Tu rol es extraer SOLO los compromisos explícitos de estas notas de reunión y convertirlos en tasks accionables.
+ 
+Reunión: ${title||'Sin título'}
+Fecha de hoy: ${today}
+Clientes activos conocidos: ${existingClients}
+ 
+Notas:
+${text}
+ 
+REGLAS ESTRICTAS:
+1. Solo generá una card si hay un COMPROMISO EXPLÍCITO: alguien dijo que va a hacer algo concreto. No interpretes ni sobreinferas.
+2. Cada card necesita un responsable claro mencionado en las notas. Si no hay responsable claro, usá "Por definir".
+3. Para el cliente: si el nombre del cliente aparece en el asunto de la reunión o en las notas, asignalo directamente. Si es una reunión interna donde se menciona un cliente de la lista de clientes conocidos, asignalo a ese cliente. Solo usá "Internos" si genuinamente no hay cliente identificable.
+4. Prioridad según impacto real:
+   - Alta: entregable pendiente con el cliente, algo que desbloquea a otros, deadline inminente
+   - Media: tarea operativa importante pero sin urgencia inmediata
+   - Baja: nice-to-have, investigación, tareas de largo plazo
+5. Tipo de tarea:
+   - "action": el responsable tiene que hacer algo concreto
+   - "visibility": tarea de otro equipo que vale la pena monitorear
+6. Si no hay compromisos claros, devolvé [].
+ 
+Devolvé SOLO un array JSON válido, sin texto adicional ni backticks. Cada objeto:
+{"title":"título corto en español máx 8 palabras","description":"qué hacer exactamente y por qué en 1-2 oraciones","client":"nombre del cliente o Internos","assignee":"nombre real del responsable o Por definir","dueDate":"YYYY-MM-DD","priority":"high|medium|low","type":"action|visibility","tags":["tag"]}`;
     const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.2}}),
